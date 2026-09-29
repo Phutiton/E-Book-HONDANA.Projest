@@ -646,37 +646,62 @@
         </div>
       </div>
     </section>
-<!-- Modal แสดงรายละเอียดหนังสือ (รองรับการเลื่อนดูหลายรูปภาพประกอบ) -->
+<!-- ✅ โค้ดใหม่ ปรับขนาดกรอบนอก Modal และรูปภาพให้พอดีสวยงาม -->
 <div id="book-detail-modal" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md hidden items-center justify-center p-4 transition-all duration-300">
-  <div class="bg-gradient-to-br from-[#16161c] via-[#121216] to-[#1c1218] rounded-3xl border border-rose-500/40 w-full max-w-2xl p-6 lg:p-8 space-y-6 shadow-[0_0_50px_rgba(225,29,72,0.3)] relative overflow-hidden">
+  <div class="bg-gradient-to-br from-[#16161c] via-[#121216] to-[#1c1218] rounded-3xl border border-rose-500/40 w-full max-w-md p-5 sm:p-6 space-y-5 shadow-[0_0_50px_rgba(225,29,72,0.3)] relative overflow-hidden">
     
     <!-- แสงเรืองรองนีออนแต่งขอบ -->
     <div class="absolute -top-24 -right-24 w-52 h-52 bg-rose-600/20 rounded-full blur-[60px] pointer-events-none"></div>
     <div class="absolute -bottom-24 -left-24 w-52 h-52 bg-amber-500/15 rounded-full blur-[60px] pointer-events-none"></div>
     
     <!-- ปุ่มปิด -->
-    <button onclick="closeBookDetailModal()" class="absolute top-5 right-5 text-zinc-400 hover:text-white text-sm w-9 h-9 rounded-full bg-zinc-900/90 flex items-center justify-center border border-zinc-700/60 transition-all hover:bg-rose-600 hover:border-rose-500 shadow-md z-20">✕</button>
+    <button onclick="closeBookDetailModal()" class="absolute top-4 right-4 text-zinc-400 hover:text-white text-xs w-8 h-8 rounded-full bg-zinc-900/90 flex items-center justify-center border border-zinc-700/60 transition-all hover:bg-rose-600 hover:border-rose-500 shadow-md z-20">✕</button>
     
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 items-start relative z-10">
-      <!-- ส่วนแสดงรูปภาพหลักและแถวรูปภาพย่อยสำหรับเลื่อนดูหลายรูป -->
-      <div class="space-y-3">
-        <div class="relative h-64 sm:h-72 bg-zinc-950 rounded-2xl overflow-hidden border border-rose-500/20 shadow-2xl group">
-          <img id="detail-cover" src="" alt="" class="w-full h-full object-cover transition-all duration-300">
-          <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none"></div>
+    <div class="flex flex-col gap-4 relative z-10">
+      <!-- ✅ โค้ดใหม่ ขยายรูปให้เต็มกรอบพอดี -->
+<div class="space-y-2 w-full">
+  <div class="relative w-full bg-zinc-950 rounded-2xl overflow-hidden border border-rose-500/20 shadow-xl group" style="aspect-ratio: 16 / 9;">
+    <img id="detail-cover" src="" alt="" class="w-full h-full object-cover transition-all duration-300">
+    <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none"></div>
+  </div>
+  <!-- แถวรูปภาพตัวอย่างย่อย (Thumbnails) -->
+  <div id="detail-thumbnails" class="flex items-center justify-center gap-1.5 overflow-x-auto pb-1"></div>
+</div>
+
+      <!-- ข้อมูลรายละเอียดด้านล่าง -->
+      <div class="space-y-3 w-full">
+        <div>
+          <span id="detail-category" class="px-2.5 py-0.5 bg-rose-500/15 text-rose-300 text-[10px] font-semibold rounded-full border border-rose-500/30 shadow-inner"></span>
+          <h3 id="detail-title" class="text-base sm:text-lg font-bold text-white mt-2 leading-snug tracking-tight"></h3>
+          <p id="detail-author" class="text-[11px] text-zinc-400 mt-0.5"></p>
         </div>
-        <!-- แถวรูปภาพตัวอย่างย่อย (Thumbnails สำหรับกดเปลี่ยนเลื่อนดู) -->
-        <div id="detail-thumbnails" class="flex items-center gap-2 overflow-x-auto pb-1">
-          <!-- รูปภาพย่อยจะถูกเรนเดอร์ใส่ที่นี่อัตโนมัติ -->
+
+        <div class="flex items-center gap-2 text-amber-400 text-xs font-medium">
+          <span id="detail-rating" class="bg-amber-500/10 px-2 py-0.5 rounded-md border border-amber-500/20 shadow-sm text-[11px]">★ 4.5</span>
+          <span class="text-zinc-400 text-[10px]">(ลิขสิทธิ์แท้และแปลไทย 100%)</span>
+        </div>
+
+        <div class="space-y-1">
+          <span class="text-[10px] text-zinc-400 uppercase tracking-wider font-semibold block">เรื่องย่อ / รายละเอียด</span>
+          <p id="detail-desc" class="text-[11px] text-zinc-300 leading-relaxed bg-[#0d0d0f]/90 p-3 rounded-xl border border-zinc-800/80 max-h-24 overflow-y-auto shadow-inner"></p>
+        </div>
+
+        <div class="pt-2.5 border-t border-zinc-800 flex items-center justify-between">
+          <div>
+            <span class="text-[9px] text-zinc-400 uppercase tracking-wider block">ราคาจำหน่าย</span>
+            <span id="detail-price" class="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-rose-400 via-pink-300 to-amber-300">฿0.00</span>
+          </div>
+          <button 
+            id="detail-add-btn"
+            class="px-5 py-2.5 bg-gradient-to-r from-rose-600 via-rose-500 to-amber-500 hover:opacity-95 text-white rounded-xl text-xs font-bold shadow-[0_4px_16px_rgba(244,63,94,0.4)] transition-all active:scale-95 flex items-center gap-1.5"
+          >
+            ใส่ตะกร้าสินค้า
+          </button>
         </div>
       </div>
-
-      <!-- ข้อมูลรายละเอียด -->
-      <div class="sm:col-span-2 space-y-4">
-        <div>
-          <span id="detail-category" class="px-3 py-1 bg-rose-500/15 text-rose-300 text-[11px] font-semibold rounded-full border border-rose-500/30 shadow-inner"></span>
-          <h3 id="detail-title" class="text-xl font-bold text-white mt-2.5 leading-snug tracking-tight"></h3>
-          <p id="detail-author" class="text-xs text-zinc-400 mt-1"></p>
-        </div>
+    </div>
+  </div>
+</div>
 
         <div class="flex items-center gap-2 text-amber-400 text-xs font-medium">
           <span id="detail-rating" class="bg-amber-500/10 px-2.5 py-0.5 rounded-lg border border-amber-500/20 shadow-sm">★ 4.5</span>
@@ -1395,29 +1420,29 @@
 
         return `
           <div onclick="openBookDetailModal(${book.ebook_id})" class="vintage-card rounded-2xl overflow-hidden flex flex-col justify-between group cursor-pointer transition-all duration-300 hover:border-rose-500/80 hover:-translate-y-1.5 hover:shadow-[0_0_22px_rgba(225,29,72,0.35)]">
-            <div class="relative h-60 bg-paper-main overflow-hidden border-b border-paper-border">
-              <img 
-                src="${book.cover_image_url || 'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?auto=format&fit=crop&w=600&q=80'}" 
-                alt="${book.title}" 
-                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
-              />
-              <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30 pointer-events-none"></div>
+<!-- ✅ โค้ดใหม่ ปรับเป็นสี่เหลี่ยมผืนผ้าแนวนอน -->
+<div class="relative w-full bg-paper-main overflow-hidden border-b border-paper-border" style="aspect-ratio: 16 / 9;">
+  <img 
+    src="${book.cover_image_url || 'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?auto=format&fit=crop&w=600&q=80'}" 
+    alt="${book.title}" 
+    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+  />
+  <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30 pointer-events-none"></div>
 
-              <div class="absolute bottom-2.5 left-2.5">
-                <span class="px-2 py-0.5 bg-black/60 backdrop-blur-md text-zinc-300 text-[10px] font-medium rounded-full border border-white/10 shadow-sm">
-                  ${book.category_name.split('(')[0].trim()}
-                </span>
-              </div>
+  <div class="absolute bottom-2.5 left-2.5">
+    <span class="px-2 py-0.5 bg-black/60 backdrop-blur-md text-zinc-300 text-[10px] font-medium rounded-full border border-white/10 shadow-sm">
+      ${book.category_name.split('(')[0].trim()}
+    </span>
+  </div>
 
-              ${!book.is_active ? `
-                <div class="absolute inset-0 bg-black/60 backdrop-blur-[2px] flex items-center justify-center">
-                  <span class="px-2.5 py-1 bg-rose-600/90 text-white text-[11px] font-bold rounded-lg border border-rose-400 shadow-lg">
-                    ปิดการขายชั่วคราว
-                  </span>
-                </div>
-              ` : ''}
-            </div>
-
+  ${!book.is_active ? `
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-[2px] flex items-center justify-center">
+      <span class="px-2.5 py-1 bg-rose-600/90 text-white text-[11px] font-bold rounded-lg border border-rose-400 shadow-lg">
+        ปิดการขายชั่วคราว
+      </span>
+    </div>
+  ` : ''}
+</div>
             <div class="p-4 flex-1 flex flex-col justify-between space-y-3">
               <div>
                 <div class="flex items-center gap-1 text-[11px] text-amber-400 mb-1">
