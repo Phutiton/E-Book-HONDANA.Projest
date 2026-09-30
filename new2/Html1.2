@@ -1,0 +1,2282 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hondana 本棚 - Manga & Light Novel Hub</title>  
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Modern Clean Typography: Cinzel (Brand), Inter & Noto Sans Thai (Clean UI) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;800;900&family=Inter:wght@400;500;600;700&family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            paper: {
+              main: '#0d0d0f',
+              card: '#16161a',
+              cardHover: '#1f1f24',
+              border: '#26262b',
+              borderDark: '#36363d',
+              dark: '#212126'
+            },
+            ink: {
+              primary: '#f4f4f6',
+              secondary: '#c5c5cd',
+              muted: '#8b8b96',
+              light: '#5e5e68'
+            },
+            leather: {
+              DEFAULT: '#e11d48',
+              hover: '#be123c',
+              light: '#ffe4e6'
+            },
+            tea: {
+              DEFAULT: '#10b981',
+              hover: '#059669',
+              light: '#d1fae5'
+            }
+          },
+          fontFamily: {
+            sans: ['"Inter"', '"Noto Sans Thai"', 'sans-serif'],
+            brand: ['"Cinzel"', 'serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      background-color: #0d0d0f;
+      color: #f4f4f6;
+      font-family: 'Inter', 'Noto Sans Thai', sans-serif;
+      letter-spacing: -0.01em;
+    }
+    .vintage-card {
+      background-color: #16161a;
+      border: 1px solid #26262b;
+      box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.45);
+      transition: all 0.2s ease;
+    }
+    .vintage-card:hover {
+      border-color: #e11d48;
+      box-shadow: 0 0 20px -2px rgba(225, 29, 72, 0.5), 0 0 8px rgba(225, 29, 72, 0.3);
+      transform: translateY(-4px);
+    }
+    .neon-glow-red {
+      box-shadow: 0 0 18px -2px rgba(225, 29, 72, 0.6), 0 0 6px rgba(225, 29, 72, 0.4);
+    }
+    ::-webkit-scrollbar { width: 7px; height: 7px; }
+    ::-webkit-scrollbar-track { background: #0d0d0f; }
+    ::-webkit-scrollbar-thumb { background: #26262b; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #e11d48; }
+
+  body.role-admin #nav-cart,
+  body.role-admin #nav-orders {
+    display: none !important;
+  }
+
+  </style>
+</head>
+<body class="min-h-screen flex flex-col selection:bg-leather selection:text-white">
+
+  <!-- ========================================================================= -->
+  <!-- 1. TOP NAVIGATION                                                         -->
+  <!-- ========================================================================= -->
+  <header class="sticky top-0 z-40 bg-[#0d0d0f]/90 backdrop-blur-xl border-b border-paper-border/80 px-4 lg:px-8 py-3 transition-all">
+    <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
+      
+      <!-- Brand Logo -->
+      <div class="flex items-center gap-3 cursor-pointer group flex-shrink-0" onclick="switchTab('catalog')">
+        <div class="relative w-10 h-10 rounded-xl bg-gradient-to-br from-rose-500 to-zinc-950 flex items-center justify-center text-white border border-rose-500/40 shadow-[0_0_15px_rgba(244,63,94,0.35)] transform group-hover:scale-105 transition-all duration-300">
+          <span class="text-lg font-black tracking-tighter">本</span>
+          <div class="absolute -top-1 -right-1 w-2 h-2 bg-rose-400 rounded-full animate-ping"></div>
+          <div class="absolute -top-1 -right-1 w-2 h-2 bg-rose-500 rounded-full border border-black"></div>
+        </div>
+        
+        <div>
+          <div class="flex items-center gap-1.5">
+            <h1 class="font-extrabold text-xl tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-white via-zinc-100 to-rose-300 font-brand">
+              HONDANA
+            </h1>
+            <span class="text-[10px] px-1.5 py-0.2 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20 font-bold">本棚</span>
+          </div>
+          <p class="text-[9px] text-zinc-400 tracking-[0.2em] font-medium -mt-0.5 uppercase">
+            Manga & Novel Hub
+          </p>
+        </div>
+      </div>
+
+      <!-- Main Navigation Tabs -->
+      <nav class="flex items-center gap-1 bg-[#141418] p-1 rounded-xl border border-paper-border text-xs font-medium overflow-x-auto max-w-full">
+        <button id="nav-catalog" onclick="switchTab('catalog')" class="px-3 py-1.5 rounded-lg transition-all text-white bg-gradient-to-r from-rose-600 to-rose-700 shadow-sm font-medium">
+          หน้าร้าน
+        </button>
+        <button id="nav-cart" onclick="requireLogin(()=>switchTab('cart'))" class="px-3 py-1.5 rounded-lg transition-all text-zinc-400 hover:text-white relative">
+          ตะกร้า
+          <span id="cart-badge" class="hidden ml-1 px-1.5 py-0.5 bg-rose-600 text-white text-[10px] rounded-full font-bold">0</span>
+        </button>
+        <button id="nav-orders" onclick="requireLogin(()=>switchTab('orders'))" class="px-3 py-1.5 rounded-lg transition-all text-zinc-400 hover:text-white">
+          คำสั่งซื้อ
+        </button>
+        <button id="nav-profile" onclick="requireLogin(()=>switchTab('profile'))" class="px-3 py-1.5 rounded-lg transition-all text-zinc-400 hover:text-white">
+          โปรไฟล์
+        </button>
+        <button id="nav-admin" onclick="switchTab('admin')" class="hidden px-3 py-1.5 rounded-lg transition-all text-zinc-400 hover:text-white">
+          หลังบ้าน
+        </button>
+        <button id="nav-reports" onclick="switchTab('reports')" class="hidden px-3 py-1.5 rounded-lg transition-all text-zinc-400 hover:text-white">
+          รายงานสถิติ
+        </button>
+      </nav>
+
+      <!-- Right User Controls -->
+      <div class="flex items-center gap-2.5 flex-shrink-0">
+        <div id="user-display" class="flex items-center gap-2"></div>
+        <button id="btn-open-login" onclick="openLoginModal()" class="px-3.5 py-1.5 text-xs bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-500 hover:to-rose-600 text-white rounded-xl font-medium transition-all shadow-md">
+          เข้าสู่ระบบ
+        </button>
+        <button id="btn-logout" onclick="handleLogout()" class="hidden px-3 py-1.5 text-xs bg-zinc-900/90 hover:bg-rose-950/60 hover:text-rose-300 text-zinc-400 border border-paper-border hover:border-rose-500/40 rounded-xl transition-all font-medium">
+          ออกจากระบบ
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Global Toast Alert -->
+  <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-16 opacity-0 transition-all duration-300 pointer-events-none">
+    <div id="toast-body" class="bg-paper-card text-ink-primary px-4 py-2.5 rounded-xl shadow-2xl text-xs flex items-center gap-2 border border-paper-border">
+      <span id="toast-icon"></span>
+      <span id="toast-text">ข้อความแจ้งเตือน</span>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- 2. MAIN VIEW CONTAINER                                                    -->
+  <!-- ========================================================================= -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 lg:p-8">
+
+    <!-- TAB 1: E-BOOK CATALOG -->
+    <section id="tab-catalog" class="space-y-6">
+      <div class="relative overflow-hidden rounded-2xl border border-rose-500/20 bg-gradient-to-r from-zinc-950 via-[#131118] to-rose-950/30 p-6 lg:p-8 shadow-xl">
+        <div class="absolute -right-6 -bottom-10 text-[9rem] font-black text-white/[0.03] select-none pointer-events-none font-serif">
+          本棚
+        </div>
+        <div class="absolute -top-16 right-20 w-44 h-44 bg-rose-600/15 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="relative z-10 max-w-xl space-y-2.5">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-500/10 text-rose-400 text-[11px] font-medium border border-rose-500/20">
+            <span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></span>
+            MANGA & LIGHT NOVEL DIGITAL HUB
+          </div>
+          <h2 class="text-xl lg:text-3xl font-extrabold text-white tracking-tight">
+            เปิดโลกจินตนาการ <span class="text-transparent bg-clip-text bg-gradient-to-r from-rose-400 to-amber-300">อ่านได้ทันที</span>
+          </h2>
+          <p class="text-xs text-zinc-400 leading-relaxed max-w-md">
+            คลังมังงะและไลท์โนเวลแปลไทยถูกลิขสิทธิ์ สั่งซื้อง่าย ตรวจสอบสิทธิ์ปลอดภัย พร้อมอ่านฉบับดิจิทัลคมชัดสูง
+          </p>
+        </div>
+      </div>
+
+      <div class="flex flex-col md:flex-row items-center justify-between gap-3 bg-gradient-to-r from-[#141418] via-[#16161c] to-[#141418] p-3 rounded-2xl border border-rose-500/20 shadow-md">
+        <div class="relative w-full md:w-96">
+          <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-rose-400/70">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+          </span>
+          <input 
+            type="text" 
+            id="search-input" 
+            placeholder="ค้นหาชื่อเรื่อง, นักเขียน, คำอธิบาย..." 
+            class="w-full pl-9 pr-4 py-2 bg-[#0d0d0f] border border-paper-border rounded-xl text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-rose-500/70 focus:ring-1 focus:ring-rose-500/30 transition-all font-normal"
+            oninput="handleSearch()"
+          />
+        </div>
+
+        <div class="flex items-center gap-2.5 w-full md:w-auto">
+          <span class="text-xs text-zinc-400 whitespace-nowrap font-medium">หมวดหมู่:</span>
+          <select 
+            id="category-filter" 
+            class="w-full md:w-64 px-3 py-2 bg-[#0d0d0f] border border-paper-border rounded-xl text-xs text-zinc-200 focus:outline-none focus:border-rose-500/70 focus:ring-1 focus:ring-rose-500/30 font-normal cursor-pointer"
+            onchange="handleFilterCategory()"
+          >
+            <option value="">ทั้งหมด (All Categories)</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="ebooks-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5"></div>
+    </section>
+
+    <!-- TAB 2: SHOPPING CART & CHECKOUT -->
+    <section id="tab-cart" class="hidden space-y-6">
+      <div class="flex items-center justify-between border-b border-paper-border/80 pb-4">
+        <div>
+          <div class="flex items-center gap-2">
+            <h2 class="text-xl font-bold text-white tracking-tight">ตะกร้าสินค้า</h2>
+            <span class="px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-400 text-[11px] font-semibold border border-rose-500/20">CHECKOUT</span>
+          </div>
+          <p class="text-xs text-zinc-400 mt-0.5">ตรวจสอบรายการและชำระเงินผ่าน PromptPay เพื่อรออนุมัติสิทธิ์การดาวน์โหลด</p>
+        </div>
+        <button onclick="switchTab('catalog')" class="text-xs font-medium text-rose-400 hover:text-amber-300 transition-colors flex items-center gap-1 group">
+          <span class="transform group-hover:-translate-x-1 transition-transform">←</span> เลือกดูมังงะเรื่องอื่น
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2 space-y-3">
+          <div id="cart-items-container" class="space-y-3"></div>
+        </div>
+
+        <div class="vintage-card p-6 rounded-2xl border border-rose-500/20 h-fit space-y-5 bg-gradient-to-b from-[#16161c] to-[#121216] shadow-xl">
+          <h3 class="text-sm font-bold text-white flex items-center justify-between border-b border-paper-border/80 pb-3">
+            <span>สรุปคำสั่งซื้อ</span>
+          </h3>
+          
+          <div class="space-y-2.5 text-xs text-zinc-300">
+            <div class="flex justify-between">
+              <span class="text-zinc-400">จำนวนรวม:</span>
+              <span id="summary-items-count" class="font-medium text-white">0 เล่ม</span>
+            </div>
+            <div class="flex justify-between items-baseline pt-2 border-t border-paper-border/80">
+              <span class="font-medium text-zinc-200">ยอดชำระสุทธิ:</span>
+              <span id="summary-total-price" class="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-rose-400 to-amber-300">฿0.00</span>
+            </div>
+          </div>
+
+          <div class="bg-[#0e0e12] p-4 rounded-2xl border border-paper-border space-y-3.5 text-xs">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span class="font-medium text-zinc-200">PromptPay QR</span>
+              </div>
+              <span class="text-[10px] text-zinc-400">สแกนจ่ายได้ทุกธนาคาร</span>
+            </div>
+            
+            <div class="relative w-36 h-36 mx-auto bg-white p-2.5 rounded-2xl shadow-[0_0_20px_rgba(244,63,94,0.15)] flex items-center justify-center">
+              <img id="qr-mock-img" src="https://api.qrserver.com/v1/create-qr-code/?size=130x130&data=PROMPTPAY_HONDANA_ORDER" alt="QR Code" class="w-full h-full object-contain">
+            </div>
+
+            <div class="space-y-2 pt-1">
+              <label class="block text-[11px] font-medium text-zinc-300">แนบสลิปการโอนเงิน:</label>
+              
+              <div class="relative border border-dashed border-zinc-700 hover:border-rose-500/60 rounded-xl p-3 bg-zinc-950/40 text-center transition-all cursor-pointer">
+                <input 
+                  type="file" 
+                  id="checkout-slip-file" 
+                  accept="image/*"
+                  onchange="handleSlipFileSelect(event)"
+                  class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                />
+                <div class="text-[11px] text-zinc-400 flex flex-col items-center gap-1">
+                  <span class="text-rose-400 font-semibold">เลือกไฟล์สลิปโอนเงิน</span>
+                  <span class="text-[9px] text-zinc-500">รองรับไฟล์ JPG, PNG</span>
+                </div>
+              </div>
+
+              <input type="hidden" id="checkout-slip-data">
+              
+              <div id="checkout-slip-preview-box" class="hidden mt-2 p-2.5 bg-[#16161c] rounded-xl border border-emerald-500/30 flex items-center gap-3">
+                <img id="checkout-slip-preview" src="" class="w-9 h-12 object-cover rounded-lg border border-emerald-500/40">
+                <div class="text-left leading-tight">
+                  <div class="text-xs font-semibold text-emerald-300">แนบสลิปเรียบร้อย</div>
+                  <div class="text-[10px] text-zinc-400">พร้อมสำหรับการตรวจสอบ</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <button 
+            onclick="handleCheckout()" 
+            id="btn-checkout"
+            class="w-full py-3 bg-gradient-to-r from-rose-600 via-rose-500 to-amber-500 hover:opacity-95 text-white rounded-xl font-bold text-xs transition-all shadow-[0_4px_16px_rgba(244,63,94,0.3)] flex items-center justify-center gap-2 active:scale-98"
+          >
+            แจ้งชำระเงินและส่งตรวจสอบสลิป
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: MY ORDERS -->
+    <section id="tab-orders" class="hidden space-y-6">
+      <div class="border-b border-paper-border pb-4">
+        <h2 class="text-lg font-semibold text-ink-primary">คำสั่งซื้อและการดาวน์โหลด</h2>
+        <p class="text-xs text-ink-muted">ติดตามผลการตรวจสลิป และดาวน์โหลดไฟล์เมื่อแอดมินยืนยันแล้ว</p>
+      </div>
+
+      <div class="p-3.5 rounded-2xl bg-gradient-to-r from-[#16141a] via-[#1a151e] to-[#16141a] border border-rose-500/20 text-xs text-zinc-300 flex items-start gap-3 shadow-md">
+        <div class="w-7 h-7 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400 flex-shrink-0 text-sm font-semibold">
+          i
+        </div>
+        <div class="leading-relaxed">
+          <span class="font-bold text-transparent bg-clip-text bg-gradient-to-r from-rose-400 to-amber-300">ระบบกำลังดำเนินการ:</span> 
+          ลิงก์ดาวน์โหลดไฟล์ E-Book จะถูกส่งให้โดยอัตโนมัติเมื่อคำสั่งซื้อได้รับการ
+          <span class="px-2 py-0.5 bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 rounded-full text-[10px] font-semibold">อนุมัติแล้ว (Confirmed)</span> 
+        </div>
+      </div>
+
+      <div id="orders-list-container" class="space-y-3.5"></div>
+    </section>
+
+    <!-- TAB 4: USER PROFILE -->
+    <section id="tab-profile" class="hidden space-y-6">
+      <div class="relative overflow-hidden rounded-2xl border border-rose-500/20 bg-gradient-to-r from-zinc-950 via-[#131118] to-rose-950/30 p-5 shadow-xl flex items-center justify-between">
+        <div class="absolute -right-4 -bottom-6 text-[7rem] font-black text-white/[0.03] select-none pointer-events-none font-serif">
+          本棚
+        </div>
+        
+        <div class="relative z-10 space-y-1">
+          <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-rose-500/10 text-rose-400 text-[10px] font-bold border border-rose-500/20 uppercase tracking-widest">
+            <span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></span>
+            ACCOUNT SETTINGS
+          </div>
+          <h2 class="text-lg lg:text-xl font-extrabold text-white tracking-tight font-brand">
+            จัดการโปรไฟล์ผู้ใช้
+          </h2>
+        </div>
+
+        <div class="relative z-10 hidden sm:block text-right">
+          <div class="text-[10px] text-zinc-400 font-mono">HONDANA</div>
+          <div class="text-xs font-bold text-rose-400">MANGA & NOVEL</div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2 space-y-5">
+          <div class="vintage-card rounded-2xl border border-paper-border bg-[#16161a] shadow-xl overflow-hidden relative">
+            <div class="h-20 bg-gradient-to-r from-zinc-950 via-[#1c1622] to-zinc-950 relative border-b border-paper-border px-5 flex items-center justify-between"></div>
+
+            <div class="px-6 relative pb-4 border-b border-paper-border bg-[#16161a]">
+              <div class="flex items-end justify-between gap-4 -mt-8 mb-1">
+                <div class="flex items-end gap-4">
+                  <div class="relative group cursor-pointer z-20 flex-shrink-0" onclick="document.getElementById('prof-avatar-file').click()" title="เปลี่ยนรูปโปรไฟล์">
+                    <div class="w-20 h-20 rounded-xl bg-zinc-900 border-2 border-rose-500/60 shadow-lg overflow-hidden group-hover:border-rose-500 transition-all">
+                      <div id="prof-avatar-box" class="w-full h-full bg-[#0d0d0f] flex items-center justify-center text-xl font-black text-rose-400">
+                        <span id="prof-avatar-letter">U</span>
+                      </div>
+                    </div>
+                    <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-[10px] font-medium transition-opacity rounded-xl">
+                      เปลี่ยนรูป
+                    </div>
+                  </div>
+
+                  <div class="mb-1 space-y-1">
+                    <h3 id="prof-display-name" class="text-sm font-bold text-white tracking-tight">กำลังโหลดชื่อ...</h3>
+                    <div class="flex items-center gap-2">
+                      <span id="prof-role-badge" class="px-2 py-0.5 bg-rose-500/10 text-rose-400 border border-rose-500/20 text-[9px] font-bold rounded uppercase tracking-wider">
+                        MEMBER
+                      </span>
+                      <span class="text-[10px] text-zinc-500">• สมาชิก</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <input type="file" id="prof-avatar-file" accept="image/*" onchange="handleAvatarFileSelect(event)" class="hidden">
+            <input type="hidden" id="prof-avatar-data">
+
+            <div class="p-6 space-y-4 text-xs">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="space-y-1.5">
+                  <label class="block text-zinc-300 font-medium">ชื่อ - นามสกุล</label>
+                  <input type="text" id="prof-fullname" class="w-full px-3.5 py-2.5 bg-[#0d0d0f] border border-paper-border rounded-xl text-zinc-100 focus:outline-none focus:border-rose-500/70 transition-all">
+                </div>
+                <div class="space-y-1.5">
+                  <label class="block text-zinc-300 font-medium">เบอร์โทรศัพท์</label>
+                  <input type="text" id="prof-phone" class="w-full px-3.5 py-2.5 bg-[#0d0d0f] border border-paper-border rounded-xl text-zinc-100 focus:outline-none focus:border-rose-500/70 transition-all">
+                </div>
+              </div>
+
+              <div class="space-y-1.5">
+                <label class="block text-zinc-400 font-medium">อีเมลบัญชีผู้ใช้ (PDPA Protected)</label>
+                <input type="text" id="prof-email" disabled class="w-full px-3.5 py-2.5 bg-[#0a0a0d] border border-paper-border rounded-xl text-zinc-500 font-mono text-xs cursor-not-allowed">
+              </div>
+
+              <div class="p-4 bg-[#0e0e12] rounded-xl border border-paper-border space-y-3">
+                <div class="flex items-center justify-between border-b border-paper-border pb-2">
+                  <h4 class="text-zinc-200 font-bold text-xs">เปลี่ยนรหัสผ่าน</h4>
+                  <span class="text-[10px] text-zinc-500 font-mono">OPTIONAL</span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div class="space-y-1">
+                    <label class="block text-zinc-400 font-medium">รหัสผ่านเดิม</label>
+                    <input type="password" id="prof-current-password" placeholder="••••••••" class="w-full px-3.5 py-2 bg-[#0d0d0f] border border-paper-border rounded-xl text-zinc-100 focus:outline-none focus:border-rose-500/70">
+                  </div>
+                  <div class="space-y-1">
+                    <label class="block text-zinc-400 font-medium">รหัสผ่านใหม่</label>
+                    <input type="password" id="prof-new-password" placeholder="••••••••" class="w-full px-3.5 py-2 bg-[#0d0d0f] border border-paper-border rounded-xl text-zinc-100 focus:outline-none focus:border-rose-500/70">
+                  </div>
+                </div>
+              </div>
+
+              <button onclick="handleSaveProfile()" class="w-full py-3 bg-gradient-to-r from-rose-600 to-rose-700 hover:opacity-95 text-white rounded-xl text-xs font-bold transition-all shadow-md">
+                บันทึกการเปลี่ยนแปลง
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-5">
+          <div class="vintage-card p-5 rounded-2xl border border-paper-border bg-[#16161a] shadow-xl space-y-4">
+            <div class="flex items-center justify-between border-b border-paper-border pb-3">
+              <h3 class="text-xs font-bold text-white tracking-wide">สถิติการอ่าน</h3>
+              <span class="text-[9px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-mono">ACTIVE</span>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 text-center">
+              <div class="p-3 bg-[#0e0e12] rounded-xl border border-paper-border">
+                <div class="text-[10px] text-zinc-500">คลังมังงะ</div>
+                <div class="text-sm font-bold text-white mt-0.5">32 เล่ม</div>
+              </div>
+              <div class="p-3 bg-[#0e0e12] rounded-xl border border-paper-border">
+                <div class="text-[10px] text-zinc-500">อ่านแล้ว</div>
+                <div class="text-sm font-bold text-white mt-0.5">148 ตอน</div>
+              </div>
+            </div>
+
+            <div class="space-y-1.5 pt-1">
+              <div class="text-[10px] font-medium text-zinc-400 uppercase tracking-wider">แนวโปรด (Genres):</div>
+              <div class="flex flex-wrap gap-1.5">
+                <span class="px-2 py-0.5 bg-zinc-900 text-zinc-300 border border-paper-border rounded text-[10px]">โชเน็น / แอคชั่น</span>
+                <span class="px-2 py-0.5 bg-zinc-900 text-zinc-300 border border-paper-border rounded text-[10px]">ดาร์กแฟนตาซี</span>
+                <span class="px-2 py-0.5 bg-zinc-900 text-zinc-300 border border-paper-border rounded text-[10px]">ไลท์โนเวล</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 5: ADMIN BACKOFFICE -->
+    <section id="tab-admin" class="hidden space-y-6">
+      <div class="flex flex-wrap items-center justify-between gap-3 border-b border-paper-border pb-4">
+        <div>
+          <h2 class="text-lg font-semibold text-ink-primary">ระบบจัดการหลังบ้าน (Admin)</h2>
+          <p class="text-xs text-ink-muted">ตรวจสอบสลิป, เพิ่ม/แก้ไขมังงะ และหมวดหมู่</p>
+        </div>
+
+        <div class="flex items-center gap-1 bg-paper-card p-1 rounded-xl border border-paper-border text-xs">
+          <button id="admin-sub-orders" onclick="switchAdminSubTab('orders')" class="px-3 py-1.5 rounded-lg bg-leather text-white font-medium shadow-sm">
+            ตรวจสอบคำสั่งซื้อ
+          </button>
+          <button id="admin-sub-books" onclick="switchAdminSubTab('books')" class="px-3 py-1.5 rounded-lg text-ink-muted hover:text-ink-primary">
+            จัดการมังงะ
+          </button>
+          <button id="admin-sub-cats" onclick="switchAdminSubTab('cats')" class="px-3 py-1.5 rounded-lg text-ink-muted hover:text-ink-primary">
+            หมวดหมู่
+          </button>
+          <button id="admin-sub-users" onclick="switchAdminSubTab('users')" class="px-3 py-1.5 rounded-lg text-ink-muted hover:text-ink-primary">
+            ผู้ใช้งาน
+          </button>
+        </div>
+      </div>
+
+      <div id="admin-view-orders" class="space-y-3.5">
+        <div class="flex items-center justify-between text-xs text-ink-muted">
+          <span>รายการคำสั่งซื้อทั้งหมด (คลิกดูสลิปเพื่อตรวจความถูกต้อง)</span>
+          <button onclick="loadAdminOrders()" class="text-rose-400 hover:underline">รีเฟรชข้อมูล</button>
+        </div>
+        <div class="overflow-x-auto rounded-2xl border border-paper-border bg-paper-card">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr class="bg-paper-main border-b border-paper-border text-ink-muted font-normal">
+                <th class="p-3">รหัสออเดอร์</th>
+                <th class="p-3">ผู้สั่งซื้อ</th>
+                <th class="p-3">วันที่</th>
+                <th class="p-3">ยอดชำระ</th>
+                <th class="p-3">หลักฐานสลิป</th>
+                <th class="p-3">สถานะ</th>
+                <th class="p-3 text-right">การตรวจสอบ</th>
+              </tr>
+            </thead>
+            <tbody id="admin-orders-tbody" class="divide-y divide-paper-border text-ink-secondary"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="admin-view-books" class="hidden space-y-6">
+        <div class="vintage-card p-5 rounded-2xl border border-paper-border space-y-3.5">
+          <h3 class="text-sm font-semibold text-ink-primary border-b border-paper-border pb-2">เพิ่มมังงะ / ไลท์โนเวลเล่มใหม่</h3>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5 text-xs">
+            <div>
+              <label class="block text-ink-muted mb-1">ชื่อเรื่อง *:</label>
+              <input type="text" id="add-book-title" placeholder="เช่น ดาบพิฆาตอสูร Vol. 2" class="w-full px-3 py-2 bg-paper-main border border-paper-border rounded-xl text-xs text-ink-primary">
+            </div>
+            <div>
+              <label class="block text-ink-muted mb-1">ราคา (บาท) *:</label>
+              <input type="number" step="0.01" min="0" id="add-book-price" placeholder="125.00" class="w-full px-3 py-2 bg-paper-main border border-paper-border rounded-xl text-xs text-ink-primary">
+            </div>
+            <div>
+              <label class="block text-ink-muted mb-1">หมวดหมู่:</label>
+              <select id="add-book-cat" class="w-full px-3 py-2 bg-paper-main border border-paper-border rounded-xl text-xs text-ink-primary"></select>
+            </div>
+            <div>
+              <label class="block text-ink-muted mb-1">ผู้แต่ง:</label>
+              <select id="add-book-author" class="w-full px-3 py-2 bg-paper-main border border-paper-border rounded-xl text-xs text-ink-primary"></select>
+            </div>
+            <div class="md:col-span-2">
+              <label class="block text-ink-muted mb-1">URL รูปภาพปกเริ่มต้น:</label>
+              <input type="text" id="add-book-img" placeholder="https://..." class="w-full px-3 py-2 bg-paper-main border border-paper-border rounded-xl text-xs text-ink-primary">
+            </div>
+            <div class="md:col-span-2">
+              <label class="block text-ink-muted mb-1">คำอธิบายย่อ:</label>
+              <textarea id="add-book-desc" rows="2" class="w-full px-3 py-2 bg-paper-main border border-paper-border rounded-xl text-xs text-ink-primary"></textarea>
+            </div>
+          </div>
+
+          <button onclick="handleAdminAddBook()" class="px-4 py-2 bg-leather hover:bg-leather-hover text-white rounded-xl text-xs font-medium">
+            บันทึกหนังสือใหม่
+          </button>
+        </div>
+
+        <div class="overflow-x-auto rounded-2xl border border-paper-border bg-paper-card">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr class="bg-paper-main border-b border-paper-border text-ink-muted">
+                <th class="p-3">ID</th>
+                <th class="p-3">ปก</th>
+                <th class="p-3">ชื่อเรื่อง / หมวดหมู่</th>
+                <th class="p-3">ผู้แต่ง</th>
+                <th class="p-3">ราคา</th>
+                <th class="p-3">สถานะ</th>
+                <th class="p-3 text-right">จัดการ</th>
+              </tr>
+            </thead>
+            <tbody id="admin-books-tbody" class="divide-y divide-paper-border text-ink-secondary"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="admin-view-cats" class="hidden space-y-6">
+        <div class="max-w-md vintage-card p-5 rounded-2xl border border-paper-border space-y-3.5">
+          <h3 class="text-sm font-semibold text-ink-primary border-b border-paper-border pb-2">เพิ่มหมวดหมู่ใหม่</h3>
+          <div>
+            <label class="block text-xs text-ink-muted mb-1">ชื่อหมวดหมู่ *:</label>
+            <input type="text" id="add-cat-name" placeholder="เช่น โชเน็น / ต่อสู้ผจญภัย" class="w-full px-3 py-2 bg-paper-main border border-paper-border rounded-xl text-xs text-ink-primary">
+          </div>
+          <button onclick="handleAdminAddCategory()" class="w-full py-2 bg-leather hover:bg-leather-hover text-white rounded-xl text-xs font-medium">
+            บันทึกหมวดหมู่
+          </button>
+        </div>
+
+        <div class="overflow-x-auto rounded-2xl border border-paper-border bg-paper-card">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr class="bg-paper-main border-b border-paper-border text-ink-muted">
+                <th class="p-3">ID</th>
+                <th class="p-3">ชื่อหมวดหมู่</th>
+                <th class="p-3 text-right">การจัดการ</th>
+              </tr>
+            </thead>
+            <tbody id="admin-cats-tbody" class="divide-y divide-paper-border text-ink-secondary"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="admin-view-users" class="hidden space-y-4">
+        <div class="overflow-x-auto rounded-2xl border border-paper-border bg-paper-card">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr class="bg-paper-main border-b border-paper-border text-ink-muted">
+                <th class="p-3">ID</th>
+                <th class="p-3">ชื่อ-นามสกุล</th>
+                <th class="p-3">อีเมล</th>
+                <th class="p-3">เบอร์โทร</th>
+                <th class="p-3">สถานะ PDPA</th>
+                <th class="p-3">บทบาท</th>
+                <th class="p-3">ประวัติความน่าเชื่อถือ</th>
+                <th class="p-3">จำนวนออเดอร์</th>
+                <th class="p-3 text-right">ยอดซื้อสะสม</th>
+              </tr>
+            </thead>
+            <tbody id="admin-users-tbody" class="divide-y divide-paper-border text-ink-secondary"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 6: SQL ANALYTICAL REPORTS -->
+    <section id="tab-reports" class="hidden space-y-6">
+      <div class="flex flex-wrap items-center justify-between gap-3 border-b border-paper-border pb-4">
+        <div>
+          <h2 class="text-lg font-semibold text-ink-primary">รายงานวิเคราะห์สถิติ </h2>
+          <p class="text-xs text-ink-muted">ประมวลผลข้อมูลจากออเดอร์ที่ถูกอนุมัติแล้ว</p>
+        </div>
+        <button onclick="exportCurrentReportToCSV()" class="px-3.5 py-1.5 bg-gradient-to-r from-rose-600/90 to-rose-700 hover:from-rose-500 hover:to-rose-600 text-white rounded-xl text-xs font-medium transition-all shadow-[0_2px_10px_rgba(244,63,94,0.2)] border border-rose-500/30 flex items-center gap-1.5 active:scale-95">
+  <span>📥</span> ส่งออกรายงาน CSV
+</button>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        <button onclick="loadReport(1)" id="btn-rep-1" class="p-3 text-left rounded-xl border border-paper-border bg-leather text-white font-medium shadow-sm transition-all">
+          <div class="text-[10px] text-white/70 uppercase">รายงาน 1</div>
+          <div class="text-xs font-semibold mt-0.5">ยอดขายตามช่วงเวลา</div>
+        </button>
+        <button onclick="loadReport(2)" id="btn-rep-2" class="p-3 text-left rounded-xl border border-paper-border bg-paper-card text-ink-muted hover:text-ink-primary transition-all">
+          <div class="text-[10px] text-ink-muted uppercase">รายงาน 2</div>
+          <div class="text-xs font-semibold mt-0.5">E-Book ขายดี Top 5</div>
+        </button>
+        <button onclick="loadReport(3)" id="btn-rep-3" class="p-3 text-left rounded-xl border border-paper-border bg-paper-card text-ink-muted hover:text-ink-primary transition-all">
+          <div class="text-[10px] text-ink-muted uppercase">รายงาน 3</div>
+          <div class="text-xs font-semibold mt-0.5">ยอดขายรายหมวด (แจกแจงมังงะ)</div>
+        </button>
+        <button onclick="loadReport(4)" id="btn-rep-4" class="p-3 text-left rounded-xl border border-paper-border bg-paper-card text-ink-muted hover:text-ink-primary transition-all">
+          <div class="text-[10px] text-ink-muted uppercase">รายงาน 4</div>
+          <div class="text-xs font-semibold mt-0.5">พฤติกรรมลูกค้า & ยอดซื้อ</div>
+        </button>
+      </div>
+
+      <div class="vintage-card p-5 rounded-2xl border border-paper-border space-y-3.5">
+        <div>
+          <h3 id="report-title" class="text-base font-semibold text-ink-primary">ยอดขายตามช่วงเวลา</h3>
+          <p id="report-desc" class="text-xs text-ink-muted mt-0.5">ยอดรวมและค่าเฉลี่ยต่อออเดอร์</p>
+          <div class="mt-2 inline-block px-2 py-0.5 bg-paper-main rounded-md border border-paper-border text-[10px] font-mono text-rose-400">
+            <span id="report-sql-badge"></span>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto rounded-xl border border-paper-border bg-paper-card">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead id="report-table-head" class="bg-paper-main border-b border-paper-border text-ink-muted"></thead>
+            <tbody id="report-table-body" class="divide-y divide-paper-border text-ink-secondary"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+<!-- ✅ โค้ดใหม่ ปรับขนาดกรอบนอก Modal และรูปภาพให้พอดีสวยงาม -->
+<div id="book-detail-modal" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md hidden items-center justify-center p-4 transition-all duration-300">
+  <div class="bg-gradient-to-br from-[#16161c] via-[#121216] to-[#1c1218] rounded-3xl border border-rose-500/40 w-full max-w-md p-5 sm:p-6 space-y-5 shadow-[0_0_50px_rgba(225,29,72,0.3)] relative overflow-hidden">
+    
+    <!-- แสงเรืองรองนีออนแต่งขอบ -->
+    <div class="absolute -top-24 -right-24 w-52 h-52 bg-rose-600/20 rounded-full blur-[60px] pointer-events-none"></div>
+    <div class="absolute -bottom-24 -left-24 w-52 h-52 bg-amber-500/15 rounded-full blur-[60px] pointer-events-none"></div>
+    
+    <!-- ปุ่มปิด -->
+    <button onclick="closeBookDetailModal()" class="absolute top-4 right-4 text-zinc-400 hover:text-white text-xs w-8 h-8 rounded-full bg-zinc-900/90 flex items-center justify-center border border-zinc-700/60 transition-all hover:bg-rose-600 hover:border-rose-500 shadow-md z-20">✕</button>
+    
+    <div class="flex flex-col gap-4 relative z-10">
+      <!-- ✅ โค้ดใหม่ ขยายรูปให้เต็มกรอบพอดี -->
+<div class="space-y-2 w-full">
+  <div class="relative w-full bg-zinc-950 rounded-2xl overflow-hidden border border-rose-500/20 shadow-xl group" style="aspect-ratio: 16 / 9;">
+    <img id="detail-cover" src="" alt="" class="w-full h-full object-cover transition-all duration-300">
+    <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none"></div>
+  </div>
+  <!-- แถวรูปภาพตัวอย่างย่อย (Thumbnails) -->
+  <div id="detail-thumbnails" class="flex items-center justify-center gap-1.5 overflow-x-auto pb-1"></div>
+</div>
+
+      <!-- ข้อมูลรายละเอียดด้านล่าง -->
+      <div class="space-y-3 w-full">
+        <div>
+          <span id="detail-category" class="px-2.5 py-0.5 bg-rose-500/15 text-rose-300 text-[10px] font-semibold rounded-full border border-rose-500/30 shadow-inner"></span>
+          <h3 id="detail-title" class="text-base sm:text-lg font-bold text-white mt-2 leading-snug tracking-tight"></h3>
+          <p id="detail-author" class="text-[11px] text-zinc-400 mt-0.5"></p>
+        </div>
+
+        <div class="flex items-center gap-2 text-amber-400 text-xs font-medium">
+          <span id="detail-rating" class="bg-amber-500/10 px-2 py-0.5 rounded-md border border-amber-500/20 shadow-sm text-[11px]"></span>
+          <span class="text-zinc-400 text-[10px]">(ลิขสิทธิ์แท้และแปลไทย 100%)</span>
+        </div>
+
+        <div class="space-y-1">
+          <span class="text-[10px] text-zinc-400 uppercase tracking-wider font-semibold block">เรื่องย่อ / รายละเอียด</span>
+          <p id="detail-desc" class="text-[11px] text-zinc-300 leading-relaxed bg-[#0d0d0f]/90 p-3 rounded-xl border border-zinc-800/80 max-h-24 overflow-y-auto shadow-inner"></p>
+        </div>
+
+        <div class="pt-2.5 border-t border-zinc-800 flex items-center justify-between">
+          <div>
+            <span class="text-[9px] text-zinc-400 uppercase tracking-wider block">ราคาจำหน่าย</span>
+            <span id="detail-price" class="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-rose-400 via-pink-300 to-amber-300">฿0.00</span>
+          </div>
+          <button 
+            id="detail-add-btn"
+            class="px-5 py-2.5 bg-gradient-to-r from-rose-600 via-rose-500 to-amber-500 hover:opacity-95 text-white rounded-xl text-xs font-bold shadow-[0_4px_16px_rgba(244,63,94,0.4)] transition-all active:scale-95 flex items-center gap-1.5"
+          >
+            ใส่ตะกร้าสินค้า
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+        
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- 3. MODALS                                                                 -->
+  <!-- ========================================================================= -->
+  
+  <div id="slip-modal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-paper-card rounded-2xl border border-paper-border max-w-sm w-full p-4 space-y-3 shadow-2xl">
+      <div class="flex justify-between items-center border-b border-paper-border pb-2">
+        <h4 class="text-xs font-semibold text-ink-primary">ตรวจสอบรูปภาพสลิปโอนเงิน</h4>
+        <button onclick="closeSlipModal()" class="text-ink-muted hover:text-ink-primary text-sm">✕</button>
+      </div>
+      <div class="w-full h-80 bg-paper-main rounded-xl overflow-hidden flex items-center justify-center border border-paper-border">
+        <img id="slip-modal-img" src="" alt="Slip" class="w-full h-full object-contain">
+      </div>
+      <button onclick="closeSlipModal()" class="w-full py-2 bg-paper-border text-ink-primary text-xs rounded-xl font-medium">ปิดหน้าต่าง</button>
+    </div>
+  </div>
+
+  <div id="edit-cat-modal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-paper-card rounded-2xl border border-paper-border max-w-sm w-full p-5 space-y-3 shadow-2xl">
+      <div class="flex justify-between items-center border-b border-paper-border pb-2">
+        <h4 class="text-xs font-semibold text-ink-primary">แก้ไขชื่อหมวดหมู่</h4>
+        <button onclick="closeEditCatModal()" class="text-ink-muted hover:text-ink-primary text-sm">✕</button>
+      </div>
+      <input type="hidden" id="edit-cat-id">
+      <div>
+        <label class="block text-xs text-ink-muted mb-1">ชื่อหมวดหมู่:</label>
+        <input type="text" id="edit-cat-name" class="w-full px-3 py-2 bg-paper-main border border-paper-border rounded-xl text-xs text-ink-primary focus:outline-none focus:border-rose-500/60">
+      </div>
+      <div class="flex gap-2 pt-2">
+        <button onclick="handleSaveEditCategory()" class="flex-1 py-2 bg-leather hover:bg-leather-hover text-white rounded-xl text-xs font-medium">บันทึก</button>
+        <button onclick="closeEditCatModal()" class="px-3 py-2 bg-paper-border text-ink-muted rounded-xl text-xs font-medium">ยกเลิก</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="edit-book-modal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-paper-card rounded-2xl border border-paper-border w-full max-w-lg p-5 space-y-4 shadow-2xl overflow-y-auto max-h-[90vh]">
+      <div class="flex justify-between items-center border-b border-paper-border pb-2">
+        <h4 class="text-sm font-semibold text-ink-primary">แก้ไขข้อมูลมังงะ</h4>
+        <button onclick="closeEditBookModal()" class="text-ink-muted hover:text-ink-primary text-sm">✕</button>
+      </div>
+
+      <input type="hidden" id="edit-book-id">
+
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block text-ink-muted mb-1">ชื่อเรื่อง (Title):</label>
+          <input type="text" id="edit-book-title" class="w-full px-3 py-2 bg-paper-main border border-paper-border rounded-xl text-xs text-ink-primary focus:outline-none focus:border-rose-500/60">
+        </div>
+        <div>
+          <label class="block text-ink-muted mb-1">ราคา (Price บาท):</label>
+          <input type="number" step="0.01" min="0" id="edit-book-price" class="w-full px-3 py-2 bg-paper-main border border-paper-border rounded-xl text-xs text-ink-primary focus:outline-none focus:border-rose-500/60">
+        </div>
+        
+        <div class="bg-paper-main p-3 rounded-xl border border-paper-border space-y-2">
+          <label class="block text-ink-secondary font-medium">รูปภาพปกมังงะ (JPG, PNG, WebP):</label>
+          <input 
+            type="file" 
+            id="edit-book-file" 
+            accept="image/*" 
+            onchange="handleFileSelect(event)"
+            class="w-full text-xs text-ink-muted file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-[11px] file:bg-leather file:text-white cursor-pointer"
+          >
+          <input type="hidden" id="edit-book-img">
+
+          <div class="flex items-center gap-3 pt-1">
+            <div class="w-20 h-28 border border-paper-border rounded-lg overflow-hidden bg-paper-card flex items-center justify-center">
+              <img id="edit-book-preview" src="" alt="Preview" class="w-full h-full object-cover hidden">
+              <span id="preview-text" class="text-[10px] text-ink-muted text-center px-1">ไม่มีรูป</span>
+            </div>
+            <div class="space-y-1.5">
+              <div class="text-[11px] text-ink-muted">หากภาพกลับหัวหรือเอียง:</div>
+              <button 
+                type="button" 
+                onclick="rotateImage(90)" 
+                class="px-2.5 py-1 bg-paper-card hover:bg-paper-border border border-paper-border text-ink-primary rounded-lg text-xs flex items-center gap-1 transition-all"
+              >
+                หมุนขวา 90°
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-ink-muted mb-1">คำอธิบาย:</label>
+          <textarea id="edit-book-desc" rows="2" class="w-full px-3 py-2 bg-paper-main border border-paper-border rounded-xl text-xs text-ink-primary focus:outline-none focus:border-rose-500/60"></textarea>
+        </div>
+      </div>
+
+      <div class="flex gap-2 pt-2 border-t border-paper-border">
+        <button onclick="handleSaveEditBook()" class="flex-1 py-2 bg-leather hover:bg-leather-hover text-white rounded-xl text-xs font-medium transition-all">
+          บันทึกการแก้ไข
+        </button>
+        <button onclick="closeEditBookModal()" class="px-4 py-2 bg-paper-border text-ink-muted rounded-xl text-xs font-medium">
+          ยกเลิก
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="login-modal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-paper-card rounded-2xl border border-paper-border w-full max-w-sm p-6 space-y-4 shadow-2xl">
+      <div class="text-center">
+        <h4 class="text-base font-semibold text-ink-primary">เข้าสู่ระบบ HONDANA</h4>
+        <p class="text-xs text-ink-muted mt-0.5">เข้าใช้งานเพื่อสั่งซื้อและดาวน์โหลด</p>
+      </div>
+
+      <div class="space-y-2.5">
+        <div>
+          <label class="block text-xs text-ink-muted mb-1">อีเมล:</label>
+          <input type="email" id="login-email" placeholder="your@email.com" class="w-full px-3 py-2 bg-paper-main border border-paper-border rounded-xl text-xs text-ink-primary focus:outline-none focus:border-rose-500/60" onkeydown="if(event.key==='Enter') handleLogin()">
+        </div>
+        <div>
+          <label class="block text-xs text-ink-muted mb-1">รหัสผ่าน:</label>
+          <input type="password" id="login-password" placeholder="••••••" class="w-full px-3 py-2 bg-paper-main border border-paper-border rounded-xl text-xs text-ink-primary focus:outline-none focus:border-rose-500/60" onkeydown="if(event.key==='Enter') handleLogin()">
+        </div>
+        <div id="login-error" class="hidden text-xs text-rose-400 bg-rose-950/40 border border-rose-800 rounded-lg px-2.5 py-1.5"></div>
+      </div>
+
+      <div class="bg-paper-main border border-paper-border rounded-xl p-2.5 text-[11px] text-ink-muted space-y-0.5">
+        <div class="text-ink-secondary font-medium">บัญชีทดสอบเดิม:</div>
+        <div>Admin: <code class="text-rose-400">admin@vintagebooks.com</code> / admin123</div>
+        <div>ลูกค้า: <code class="text-rose-400">somchai@reader.com</code> / pass123</div>
+      </div>
+
+      <div class="space-y-1.5">
+        <button onclick="handleLogin()" class="w-full py-2 bg-leather hover:bg-leather-hover text-white rounded-xl text-xs font-medium transition-all shadow-sm">
+          เข้าสู่ระบบ
+        </button>
+        <button onclick="openRegisterModal()" class="w-full py-1 text-xs text-rose-400 hover:underline">
+          สมัครสมาชิกใหม่ →
+        </button>
+        <button onclick="closeLoginModal()" class="w-full py-1 text-xs text-ink-muted hover:text-ink-primary">
+          ยกเลิก
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="register-modal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-paper-card rounded-2xl border border-paper-border w-full max-w-sm p-6 space-y-4 shadow-2xl">
+      <div class="text-center">
+        <h4 class="text-base font-semibold text-ink-primary">สมัครสมาชิกใหม่</h4>
+        <p class="text-xs text-ink-muted mt-0.5">สร้างบัญชีเพื่ออ่านมังงะ</p>
+      </div>
+
+      <div class="space-y-2.5">
+        <div>
+          <label class="block text-xs text-ink-muted mb-1">ชื่อ-นามสกุล *:</label>
+          <input type="text" id="reg-fullname" placeholder="สมชาย ใจดี" class="w-full px-3 py-2 bg-paper-main border border-paper-border rounded-xl text-xs text-ink-primary focus:outline-none focus:border-rose-500/60">
+        </div>
+        <div>
+          <label class="block text-xs text-ink-muted mb-1">อีเมล *:</label>
+          <input type="email" id="reg-email" placeholder="your@email.com" class="w-full px-3 py-2 bg-paper-main border border-paper-border rounded-xl text-xs text-ink-primary focus:outline-none focus:border-rose-500/60">
+        </div>
+        <div>
+          <label class="block text-xs text-ink-muted mb-1">เบอร์โทรศัพท์:</label>
+          <input type="tel" id="reg-phone" placeholder="08X-XXX-XXXX" class="w-full px-3 py-2 bg-paper-main border border-paper-border rounded-xl text-xs text-ink-primary focus:outline-none focus:border-rose-500/60">
+        </div>
+        <div>
+          <label class="block text-xs text-ink-muted mb-1">รหัสผ่าน *:</label>
+          <input type="password" id="reg-password" placeholder="อย่างน้อย 6 ตัวอักษร" class="w-full px-3 py-2 bg-paper-main border border-paper-border rounded-xl text-xs text-ink-primary focus:outline-none focus:border-rose-500/60">
+        </div>
+
+        <div class="pt-2 border-t border-paper-border">
+          <label class="flex items-start gap-2 cursor-pointer text-left">
+            <input type="checkbox" id="reg-pdpa" class="mt-0.5 rounded border-paper-border bg-paper-main text-rose-600 focus:ring-0">
+            <span class="text-[11px] text-ink-muted leading-tight">
+              ฉันได้อ่านและยินยอมตาม <a href="javascript:void(0)" onclick="openPdpaModal()" class="text-rose-400 hover:underline">เงื่อนไขนโยบายคุ้มครองข้อมูลส่วนบุคคล (PDPA)</a> ของ Hondana Hub
+            </span>
+          </label>
+        </div>
+
+        <div id="reg-error" class="hidden text-xs text-rose-400 bg-rose-950/40 border border-rose-800 rounded-lg px-2.5 py-1.5"></div>
+      </div>
+
+      <div class="space-y-1.5">
+        <button onclick="handleRegister()" class="w-full py-2 bg-tea hover:bg-tea-hover text-white rounded-xl text-xs font-medium transition-all shadow-sm">
+          สมัครสมาชิก
+        </button>
+        <button onclick="openLoginModal()" class="w-full py-1 text-xs text-rose-400 hover:underline">
+          มีบัญชีอยู่แล้ว? เข้าสู่ระบบ
+        </button>
+        <button onclick="closeRegisterModal()" class="w-full py-1 text-xs text-ink-muted hover:text-ink-primary">
+          ยกเลิก
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="pdpa-modal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-paper-card rounded-2xl border border-paper-border max-w-lg w-full p-5 space-y-3 shadow-2xl">
+      <div class="flex justify-between items-center border-b border-paper-border pb-2">
+        <h4 class="text-xs font-semibold text-ink-primary">นโยบายคุ้มครองข้อมูลส่วนบุคคล (PDPA Agreement)</h4>
+        <button onclick="closePdpaModal()" class="text-ink-muted hover:text-ink-primary text-sm">✕</button>
+      </div>
+      <div class="text-xs text-ink-secondary space-y-2 leading-relaxed max-h-60 overflow-y-auto pr-2">
+        <p><strong>1. วัตถุประสงค์ในการเก็บรวบรวม:</strong> ระบบจัดเก็บชื่อ-นามสกุล, อีเมล และเบอร์โทรศัพท์ เพื่อการยืนยันตัวตน, จัดการสิทธิ์การดาวน์โหลด E-Book ลิขสิทธิ์ และการออกใบเสร็จสั่งซื้อ</p>
+        <p><strong>2. การประมวลผลและการเก็บรักษา:</strong> ข้อมูลจะถูกเก็บไว้ในฐานข้อมูลที่มีระบบความปลอดภัยตามมาตรฐาน ไม่นำไปเผยแพร่หรือส่งต่อให้บุคคลภายนอกโดยไม่ได้รับอนุญาต</p>
+        <p><strong>3. สิทธิของเจ้าของข้อมูล:</strong> ท่านสามารถขอดู, ขอแก้ไข หรือขอลบข้อมูลส่วนตัวได้ตลอดเวลาผ่านหน้าจัดการข้อมูลส่วนตัว</p>
+      </div>
+      <button onclick="acceptPdpaAndClose()" class="w-full py-2 bg-leather hover:bg-leather-hover text-white rounded-xl text-xs font-medium">
+        รับทราบและยอมรับเงื่อนไข
+      </button>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- 4. JAVASCRIPT FRONTEND LOGIC                                              -->
+  <!-- ========================================================================= -->
+  <script>
+    let currentUser = null;
+    let allCategories = [];
+    let allAuthors = [];
+    let allEbooks = [];
+    let currentTab = 'catalog';
+    let currentReportData = null;
+    let currentReportId = 1;
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const savedUser = localStorage.getItem('ebook_vintage_user');
+      if (savedUser) {
+        try { currentUser = JSON.parse(savedUser); } catch(e) {}
+      }
+      updateUserUI();
+      await loadCategories();
+      await loadAuthors();
+      await loadEbooks();
+      if (currentUser) await updateCartBadge();
+    });
+
+    function showToast(message, icon = '') {
+      const toast = document.getElementById('toast');
+      const text = document.getElementById('toast-text');
+      const ic = document.getElementById('toast-icon');
+      text.innerText = message;
+      ic.innerText = icon;
+      toast.classList.remove('translate-y-16', 'opacity-0');
+      setTimeout(() => {
+        toast.classList.add('translate-y-16', 'opacity-0');
+      }, 3000);
+    }
+
+function updateUserUI() {
+      const display = document.getElementById('user-display');
+      const btnLogin = document.getElementById('btn-open-login');
+      const btnLogout = document.getElementById('btn-logout');
+      const navAdmin = document.getElementById('nav-admin');
+      const navReports = document.getElementById('nav-reports');
+
+      if (currentUser) {
+        const avatarImgTag = currentUser.avatar_url 
+          ? `<img src="${currentUser.avatar_url}" class="w-6 h-6 rounded-lg object-cover">`
+          : `<div class="w-6 h-6 rounded-lg bg-gradient-to-br from-rose-500 to-amber-400 flex items-center justify-center text-[11px] font-black text-black shadow-inner">${currentUser.full_name ? currentUser.full_name.charAt(0) : 'U'}</div>`;
+
+        display.innerHTML = `
+          <div class="flex items-center gap-2 px-2.5 py-1 rounded-xl bg-[#141418] border border-rose-500/20 shadow-sm">
+            ${avatarImgTag}
+            <div class="text-left leading-none hidden sm:block">
+              <div class="text-xs font-semibold text-zinc-100">${currentUser.full_name}</div>
+              <div class="text-[9px] text-amber-300/80 font-mono tracking-wider uppercase mt-0.5">${currentUser.role_id === 1 ? 'Admin' : 'Member'}</div>
+            </div>
+          </div>
+        `;
+        btnLogin.classList.add('hidden');
+        btnLogout.classList.remove('hidden');
+
+        // ตรวจสอบสิทธิ์แอดมิน
+        if (currentUser.role_id === 1) {
+          navAdmin.classList.remove('hidden');
+          navReports.classList.remove('hidden');
+          
+          // ล็อกสถานะ body เป็นแอดมิน เพื่อสั่งซ่อนตะกร้าและคำสั่งซื้อถาวรทุกหน้าด้วย CSS
+          document.body.classList.add('role-admin');
+        } else {
+          navAdmin.classList.add('hidden');
+          navReports.classList.add('hidden');
+          document.body.classList.remove('role-admin');
+        }
+
+        const profEmail = document.getElementById('prof-email');
+        const profFullname = document.getElementById('prof-fullname');
+        const profPhone = document.getElementById('prof-phone');
+        const profAvatarBox = document.getElementById('prof-avatar-box');
+        const profDisplayName = document.getElementById('prof-display-name');
+        
+        if (profEmail) profEmail.value = currentUser.email || '';
+        if (profFullname) profFullname.value = currentUser.full_name || '';
+        if (profPhone) profPhone.value = currentUser.phone || '';
+        if (profDisplayName) profDisplayName.innerText = currentUser.full_name || 'สมาชิก HONDANA';
+
+        if (profAvatarBox) {
+          const rawName = currentUser.full_name ? currentUser.full_name.trim() : 'U';
+          const firstChar = rawName.charAt(0);
+          
+          if (currentUser.avatar_url) {
+            profAvatarBox.innerHTML = `<img src="${currentUser.avatar_url}" class="w-full h-full object-cover rounded-[14px]">`;
+          } else {
+            profAvatarBox.innerHTML = `
+              <div class="w-full h-full bg-[#111115] rounded-[14px] flex items-center justify-center text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-rose-400 to-amber-300 font-sans">
+                <span>${firstChar}</span>
+              </div>
+            `;
+          }
+        }
+      } else {
+        display.innerHTML = `<span class="text-xs text-ink-muted">ยังไม่ได้เข้าสู่ระบบ</span>`;
+        btnLogin.classList.remove('hidden');
+        btnLogout.classList.add('hidden');
+        navAdmin.classList.add('hidden');
+        navReports.classList.add('hidden');
+        document.body.classList.remove('role-admin');
+      }
+    }
+       const profEmail = document.getElementById('prof-email');
+        const profFullname = document.getElementById('prof-fullname');
+        const profPhone = document.getElementById('prof-phone');
+        const profRoleBadge = document.getElementById('prof-role-badge');
+        const profAvatarBox = document.getElementById('prof-avatar-box');
+        const profDisplayName = document.getElementById('prof-display-name');
+        
+        if (profEmail) profEmail.value = currentUser.email || '';
+        if (profFullname) profFullname.value = currentUser.full_name || '';
+        if (profPhone) profPhone.value = currentUser.phone || '';
+        if (profDisplayName) profDisplayName.innerText = currentUser.full_name || 'สมาชิก HONDANA';
+
+        if (profAvatarBox) {
+          const rawName = currentUser.full_name ? currentUser.full_name.trim() : 'U';
+          const firstChar = rawName.charAt(0);
+          
+          if (currentUser.avatar_url) {
+            profAvatarBox.innerHTML = `<img src="${currentUser.avatar_url}" class="w-full h-full object-cover rounded-[14px]">`;
+          } else {
+            profAvatarBox.innerHTML = `
+              <div class="w-full h-full bg-[#111115] rounded-[14px] flex items-center justify-center text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-rose-400 to-amber-300 font-sans">
+                <span>${firstChar}</span>
+              </div>
+            `;
+          }
+        }
+      else {
+        display.innerHTML = `<span class="text-xs text-ink-muted">ยังไม่ได้เข้าสู่ระบบ</span>`;
+        btnLogin.classList.remove('hidden');
+        btnLogout.classList.add('hidden');
+        navAdmin.classList.add('hidden');
+        navReports.classList.add('hidden');
+      }
+    
+
+    function requireLogin(callback) {
+      if (!currentUser) {
+        openLoginModal();
+        return;
+      }
+      callback();
+    }
+    function openBookDetailModal(ebookId) {
+      const book = allEbooks.find(b => b.ebook_id === ebookId);
+      if (!book) return;
+
+      const randomRating = (4.0 + ((book.ebook_id * 7) % 10) * 0.1).toFixed(1);
+      const defaultCover = book.cover_image_url || 'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?auto=format&fit=crop&w=600&q=80';
+
+      // จำลองชุดภาพตัวอย่างหลายรูปสำหรับประกอบการตัดสินใจ (รวมภาพหลักและภาพสไตล์ใกล้เคียงกัน)
+      const previewImages = [
+        defaultCover,
+      ];
+
+      document.getElementById('detail-cover').src = defaultCover;
+      document.getElementById('detail-category').innerText = book.category_name ? book.category_name.split('(')[0].trim() : 'ทั่วไป';
+      document.getElementById('detail-title').innerText = book.title;
+      document.getElementById('detail-author').innerText = `ผู้แต่ง: ${book.author_name || 'ไม่ระบุ'}`;
+      document.getElementById('detail-rating').innerText = `★ ${randomRating}`;
+      document.getElementById('detail-desc').innerText = book.description || 'ยังไม่มีคำอธิบายสำหรับหนังสือเล่มนี้';
+      document.getElementById('detail-price').innerText = `฿${Number(book.price).toFixed(2)}`;
+
+      
+
+      const addBtn = document.getElementById('detail-add-btn');
+      if (book.is_active) {
+        addBtn.disabled = false;
+        addBtn.className = 'px-6 py-3 bg-gradient-to-r from-rose-600 via-rose-500 to-amber-500 hover:opacity-95 text-white rounded-xl text-xs font-bold shadow-[0_4px_20px_rgba(244,63,94,0.4)] transition-all active:scale-95 flex items-center gap-2';
+        addBtn.setAttribute('onclick', `handleAddToCart(${book.ebook_id}); closeBookDetailModal();`);
+        addBtn.innerText = 'ใส่ตะกร้าสินค้า';
+      } else {
+        addBtn.disabled = true;
+        addBtn.className = 'px-6 py-3 bg-zinc-800 text-zinc-500 rounded-xl text-xs font-bold cursor-not-allowed';
+        addBtn.innerText = 'ปิดการขายชั่วคราว';
+      }
+
+      const modal = document.getElementById('book-detail-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeBookDetailModal() {
+      const modal = document.getElementById('book-detail-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+    function openLoginModal() {
+      document.getElementById('login-error').classList.add('hidden');
+      document.getElementById('login-email').value = '';
+      document.getElementById('login-password').value = '';
+      document.getElementById('register-modal').classList.add('hidden');
+      document.getElementById('login-modal').classList.remove('hidden');
+      document.getElementById('login-modal').classList.add('flex');
+    }
+
+    function closeLoginModal() {
+      document.getElementById('login-modal').classList.add('hidden');
+      document.getElementById('login-modal').classList.remove('flex');
+    }
+
+    async function handleLogin() {
+      const email = document.getElementById('login-email').value.trim().toLowerCase();
+      const password = document.getElementById('login-password').value.trim();
+      const errBox = document.getElementById('login-error');
+
+      if (!email || !password) {
+        errBox.textContent = 'กรุณากรอกอีเมลและรหัสผ่าน';
+        errBox.classList.remove('hidden');
+        return;
+      }
+
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        currentUser = data.user;
+        localStorage.setItem('ebook_vintage_user', JSON.stringify(currentUser));
+        closeLoginModal();
+        updateUserUI();
+        await updateCartBadge();
+        showToast(`ยินดีต้อนรับ ${currentUser.full_name}`);
+        if (currentTab === 'orders') loadMyOrders();
+        if (currentTab === 'cart') loadCart();
+      } else {
+        errBox.textContent = data.error || 'อีเมลหรือรหัสผ่านไม่ถูกต้อง';
+        errBox.classList.remove('hidden');
+      }
+    }
+
+    function handleLogout() {
+      currentUser = null;
+      localStorage.removeItem('ebook_vintage_user');
+      updateUserUI();
+      if (['cart', 'orders', 'profile', 'admin', 'reports'].includes(currentTab)) {
+        switchTab('catalog');
+      }
+      document.getElementById('cart-badge').classList.add('hidden');
+      showToast('ออกจากระบบเรียบร้อยแล้ว');
+    }
+
+    function openRegisterModal() {
+      document.getElementById('reg-error').classList.add('hidden');
+      document.getElementById('reg-fullname').value = '';
+      document.getElementById('reg-email').value = '';
+      document.getElementById('reg-phone').value = '';
+      document.getElementById('reg-password').value = '';
+      document.getElementById('reg-pdpa').checked = false;
+      document.getElementById('login-modal').classList.add('hidden');
+      document.getElementById('register-modal').classList.remove('hidden');
+      document.getElementById('register-modal').classList.add('flex');
+    }
+
+    function closeRegisterModal() {
+      document.getElementById('register-modal').classList.add('hidden');
+      document.getElementById('register-modal').classList.remove('flex');
+    }
+
+    function openPdpaModal() {
+      document.getElementById('pdpa-modal').classList.remove('hidden');
+      document.getElementById('pdpa-modal').classList.add('flex');
+    }
+
+    function closePdpaModal() {
+      document.getElementById('pdpa-modal').classList.add('hidden');
+      document.getElementById('pdpa-modal').classList.remove('flex');
+    }
+
+    function acceptPdpaAndClose() {
+      document.getElementById('reg-pdpa').checked = true;
+      closePdpaModal();
+    }
+
+    async function handleRegister() {
+      const full_name = document.getElementById('reg-fullname').value.trim();
+      const email = document.getElementById('reg-email').value.trim().toLowerCase();
+      const phone = document.getElementById('reg-phone').value.trim();
+      const password = document.getElementById('reg-password').value.trim();
+      const pdpa_consent = document.getElementById('reg-pdpa').checked;
+      const errBox = document.getElementById('reg-error');
+
+      errBox.classList.add('hidden');
+
+      if (!pdpa_consent) {
+        errBox.textContent = 'กรุณากดยอมรับเงื่อนไขนโยบาย PDPA ก่อนสมัครสมาชิก';
+        errBox.classList.remove('hidden');
+        return;
+      }
+
+      if (!full_name || !email || !password) {
+        errBox.textContent = 'กรุณากรอกชื่อ-นามสกุล อีเมล และรหัสผ่านให้ครบ';
+        errBox.classList.remove('hidden');
+        return;
+      }
+
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ full_name, email, phone, password, pdpa_consent })
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        currentUser = data.user;
+        localStorage.setItem('ebook_vintage_user', JSON.stringify(currentUser));
+        closeRegisterModal();
+        updateUserUI();
+        await updateCartBadge();
+        showToast(`ยินดีต้อนรับสมาชิกใหม่ ${currentUser.full_name}`);
+      } else {
+        errBox.textContent = data.error || 'เกิดข้อผิดพลาดในการสมัครสมาชิก';
+        errBox.classList.remove('hidden');
+      }
+    }
+
+    function handleAvatarFileSelect(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          const max_size = 400;
+
+          if (width > height && width > max_size) {
+            height = Math.round((height * max_size) / width);
+            width = max_size;
+          } else if (height > max_size) {
+            width = Math.round((width * max_size) / height);
+            height = max_size;
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+
+          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.85);
+          document.getElementById('prof-avatar-data').value = compressedBase64;
+          
+          const box = document.getElementById('prof-avatar-box');
+          if (box) {
+            box.innerHTML = `<img src="${compressedBase64}" class="w-full h-full object-cover rounded-[14px]">`;
+          }
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    async function handleSaveProfile() {
+      const fullname = document.getElementById('prof-fullname').value.trim();
+      const phone = document.getElementById('prof-phone').value.trim();
+      const avatarData = document.getElementById('prof-avatar-data').value;
+      const currentPassword = document.getElementById('prof-current-password').value.trim();
+      const newPassword = document.getElementById('prof-new-password').value.trim();
+
+      if (!fullname) {
+        showToast('กรุณากรอกชื่อ-นามสกุล');
+        return;
+      }
+
+      if (newPassword && !currentPassword) {
+        showToast('กรุณากรอกรหัสผ่านเดิมเพื่อยืนยันความปลอดภัย');
+        return;
+      }
+
+      const payload = { full_name: fullname, phone };
+      if (avatarData) payload.avatar_url = avatarData;
+      if (newPassword) {
+        payload.current_password = currentPassword;
+        payload.new_password = newPassword;
+      }
+
+      const res = await fetch('/api/auth/profile', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'X-User-Id': currentUser.user_id },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (data.success) {
+        currentUser = data.user;
+        localStorage.setItem('ebook_vintage_user', JSON.stringify(currentUser));
+        document.getElementById('prof-current-password').value = '';
+        document.getElementById('prof-new-password').value = '';
+        document.getElementById('prof-avatar-data').value = '';
+        updateUserUI();
+        showToast('บันทึกข้อมูลและรหัสผ่านเรียบร้อย');
+      } else {
+        showToast(data.error || 'เกิดข้อผิดพลาดในการบันทึก');
+      }
+    }
+
+    function switchTab(tabId) {
+      const adminOnlyTabs = ['admin', 'reports'];
+      const loginRequiredTabs = ['cart', 'orders', 'profile', 'admin', 'reports'];
+
+      if (adminOnlyTabs.includes(tabId)) {
+        if (!currentUser) {
+          openLoginModal();
+          showToast('กรุณาเข้าสู่ระบบก่อน');
+          return;
+        }
+        if (currentUser.role_id !== 1) {
+          showToast('เฉพาะผู้ดูแลระบบ (Admin) เท่านั้น');
+          switchTab('catalog');
+          return;
+        }
+      }
+
+      if (loginRequiredTabs.includes(tabId) && !currentUser) {
+        openLoginModal();
+        showToast('กรุณาเข้าสู่ระบบก่อน');
+        return;
+      }
+
+      currentTab = tabId;
+      const tabs = ['catalog', 'cart', 'orders', 'profile', 'admin', 'reports'];
+      tabs.forEach(t => {
+        document.getElementById(`tab-${t}`).classList.add('hidden');
+        const navBtn = document.getElementById(`nav-${t}`);
+        if (navBtn) {
+          const isAdminOnlyTab = adminOnlyTabs.includes(t);
+          const isAdminUser = currentUser && currentUser.role_id === 1;
+          if (isAdminOnlyTab && !isAdminUser) {
+            navBtn.className = 'hidden px-3.5 py-1.5 rounded-lg transition-all text-ink-muted hover:text-ink-primary';
+          } else {
+            navBtn.className = 'px-3.5 py-1.5 rounded-lg transition-all text-ink-muted hover:text-ink-primary';
+          }
+        }
+      });
+
+      document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+      const activeNav = document.getElementById(`nav-${tabId}`);
+      if (activeNav) {
+        activeNav.className = 'px-3.5 py-1.5 rounded-lg transition-all text-white bg-leather shadow-sm font-medium';
+      }
+
+      if (tabId === 'cart') loadCart();
+      if (tabId === 'orders') loadMyOrders();
+      if (tabId === 'admin') loadAdminOrders();
+      if (tabId === 'reports') loadReport(1);
+    }
+
+    async function loadCategories() {
+      const res = await fetch('/api/categories');
+      const data = await res.json();
+      allCategories = data.categories || [];
+      
+      const filterSelect = document.getElementById('category-filter');
+      const addBookCat = document.getElementById('add-book-cat');
+      
+      filterSelect.innerHTML = '<option value="">ทั้งหมด (All Categories)</option>';
+      if (addBookCat) addBookCat.innerHTML = '';
+
+      allCategories.forEach(c => {
+        filterSelect.innerHTML += `<option value="${c.category_id}">${c.category_name}</option>`;
+        if (addBookCat) addBookCat.innerHTML += `<option value="${c.category_id}">${c.category_name}</option>`;
+      });
+    }
+
+    async function loadAuthors() {
+      const res = await fetch('/api/authors');
+      const data = await res.json();
+      allAuthors = data.authors || [];
+      const addBookAuthor = document.getElementById('add-book-author');
+      if (addBookAuthor) {
+        addBookAuthor.innerHTML = '';
+        allAuthors.forEach(a => {
+          addBookAuthor.innerHTML += `<option value="${a.author_id}">${a.author_name}</option>`;
+        });
+      }
+    }
+
+    async function loadEbooks() {
+      const search = document.getElementById('search-input').value.trim();
+      const cat = document.getElementById('category-filter').value;
+      const params = new URLSearchParams();
+      if (search) params.append('search', search);
+      if (cat) params.append('category', cat);
+
+      const res = await fetch(`/api/ebooks?${params.toString()}`);
+      const data = await res.json();
+      allEbooks = data.ebooks || [];
+      renderEbooksGrid(allEbooks);
+    }
+
+    function handleSearch() { loadEbooks(); }
+    function handleFilterCategory() { loadEbooks(); }
+
+   function renderEbooksGrid(books) {
+      const grid = document.getElementById('ebooks-grid');
+      if (books.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full text-center py-16 vintage-card rounded-2xl p-6 text-ink-muted">
+            <p class="mt-2 text-sm text-ink-primary font-medium">ไม่พบผลการค้นหา</p>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = books.map((book, index) => {
+        const randomRating = (4.0 + ((book.ebook_id * 7) % 10) * 0.1).toFixed(1);
+        const randomReviewCount = 12 + ((book.ebook_id * 31) % 150);
+
+        return `
+          <div onclick="openBookDetailModal(${book.ebook_id})" class="vintage-card rounded-2xl overflow-hidden flex flex-col justify-between group cursor-pointer transition-all duration-300 hover:border-rose-500/80 hover:-translate-y-1.5 hover:shadow-[0_0_22px_rgba(225,29,72,0.35)]">
+<!-- ✅ โค้ดใหม่ ปรับเป็นสี่เหลี่ยมผืนผ้าแนวนอน -->
+<div class="relative w-full bg-paper-main overflow-hidden border-b border-paper-border" style="aspect-ratio: 16 / 9;">
+  <img 
+    src="${book.cover_image_url || 'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?auto=format&fit=crop&w=600&q=80'}" 
+    alt="${book.title}" 
+    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+  />
+  <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30 pointer-events-none"></div>
+
+  <div class="absolute bottom-2.5 left-2.5">
+    <span class="px-2 py-0.5 bg-black/60 backdrop-blur-md text-zinc-300 text-[10px] font-medium rounded-full border border-white/10 shadow-sm">
+      ${book.category_name.split('(')[0].trim()}
+    </span>
+  </div>
+
+  ${!book.is_active ? `
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-[2px] flex items-center justify-center">
+      <span class="px-2.5 py-1 bg-rose-600/90 text-white text-[11px] font-bold rounded-lg border border-rose-400 shadow-lg">
+        ปิดการขายชั่วคราว
+      </span>
+    </div>
+  ` : ''}
+</div>
+            <div class="p-4 flex-1 flex flex-col justify-between space-y-3">
+              <div>
+                <div class="flex items-center gap-1 text-[11px] text-amber-400 mb-1">
+                  <span>★ ${randomRating}</span>
+                  <span class="text-zinc-500 text-[10px] font-normal">(${randomReviewCount} รีวิว)</span>
+                </div>
+                <h3 class="text-sm font-semibold text-ink-primary line-clamp-1 group-hover:text-rose-400 transition-colors" title="${book.title}">
+                  ${book.title}
+                </h3>
+                <p class="text-[11px] text-ink-muted mt-1 font-normal flex items-center gap-1.5">
+                  <span class="truncate">${book.author_name}</span>
+                </p>
+                <p class="text-[11px] text-ink-secondary mt-1.5 line-clamp-2 leading-relaxed font-normal">
+                  ${book.description || 'ไม่มีคำอธิบาย'}
+                </p>
+              </div>
+
+              <div class="pt-3 border-t border-paper-border/80 flex items-center justify-between">
+                <div>
+                  <span class="text-[10px] text-zinc-500 uppercase tracking-wider block leading-none">ราคา</span>
+                  <span class="text-base font-bold text-rose-400">฿${Number(book.price).toFixed(2)}</span>
+                </div>
+                <button 
+                  onclick="event.stopPropagation(); handleAddToCart(${book.ebook_id})"
+                  ${!book.is_active ? 'disabled' : ''}
+                  class="px-3 py-1.5 rounded-xl text-xs font-medium transition-all duration-200 flex items-center gap-1.5 active:scale-95 ${book.is_active ? 'bg-leather hover:bg-leather-hover text-white shadow-sm hover:shadow-[0_0_12px_rgba(225,29,72,0.4)]' : 'bg-paper-dark text-ink-muted cursor-not-allowed'}"
+                >
+                  ใส่ตะกร้า
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+    async function handleAddToCart(ebookId) {
+      if (!currentUser) {
+        openLoginModal();
+        showToast('กรุณาเข้าสู่ระบบก่อนเพิ่มสินค้า');
+        return;
+      }
+      const res = await fetch('/api/cart/add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-User-Id': currentUser.user_id },
+        body: JSON.stringify({ ebook_id: ebookId })
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast(data.message);
+        updateCartBadge();
+      } else {
+        alert(data.error || 'ไม่สามารถเพิ่มลงตะกร้าได้');
+      }
+    }
+
+    async function updateCartBadge() {
+      if (!currentUser) return;
+      const res = await fetch('/api/cart', { headers: { 'X-User-Id': currentUser.user_id } });
+      const data = await res.json();
+      const badge = document.getElementById('cart-badge');
+      const count = (data.items || []).reduce((s, i) => s + i.quantity, 0);
+      if (count > 0) {
+        badge.innerText = count;
+        badge.classList.remove('hidden');
+      } else {
+        badge.classList.add('hidden');
+      }
+    }
+
+    async function loadCart() {
+      if (!currentUser) return;
+      const res = await fetch('/api/cart', { headers: { 'X-User-Id': currentUser.user_id } });
+      const data = await res.json();
+      const container = document.getElementById('cart-items-container');
+      const items = data.items || [];
+
+      document.getElementById('summary-items-count').innerText = `${items.reduce((s, i) => s + i.quantity, 0)} เล่ม`;
+      document.getElementById('summary-total-price').innerText = `฿${Number(data.total || 0).toFixed(2)}`;
+
+      const btnCheckout = document.getElementById('btn-checkout');
+      if (items.length === 0) {
+        btnCheckout.disabled = true;
+        btnCheckout.classList.add('opacity-50', 'cursor-not-allowed');
+        container.innerHTML = `
+          <div class="vintage-card p-12 rounded-2xl text-center border border-paper-border/80 bg-gradient-to-b from-[#141418] to-[#101014] space-y-3">
+            <div>
+              <h3 class="text-sm font-semibold text-white">ตะกร้าของคุณยังว่างอยู่</h3>
+              <p class="text-xs text-zinc-400 mt-0.5">เลือกมังงะและไลท์โนเวลเรื่องโปรดลงตะกร้าได้เลย</p>
+            </div>
+            <button onclick="switchTab('catalog')" class="mt-2 px-4 py-2 bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-500 hover:to-rose-600 text-white rounded-xl text-xs font-semibold shadow-md transition-all">
+              ไปยังหน้าร้านเพื่อเลือกซื้อ
+            </button>
+          </div>
+        `;
+        return;
+      }
+
+      btnCheckout.disabled = false;
+      btnCheckout.classList.remove('opacity-50', 'cursor-not-allowed');
+
+      container.innerHTML = items.map(item => `
+        <div class="vintage-card p-3 rounded-2xl flex items-center justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <img src="${item.cover_image_url || 'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?auto=format&fit=crop&w=120&q=80'}" class="w-10 h-14 object-cover rounded-lg border border-paper-border">
+            <div>
+              <h4 class="text-xs font-semibold text-ink-primary">${item.title}</h4>
+              <p class="text-[11px] text-ink-muted">ผู้แต่ง: ${item.author_name}</p>
+              <div class="text-xs text-rose-400 font-medium mt-0.5">฿${Number(item.price).toFixed(2)}</div>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <div class="flex items-center border border-paper-border rounded-lg bg-paper-main">
+              <button onclick="updateCartQty(${item.cart_item_id}, ${item.quantity - 1})" class="px-2 py-0.5 text-xs text-ink-secondary hover:bg-paper-dark">-</button>
+              <span class="px-2 text-xs font-medium text-ink-primary">${item.quantity}</span>
+              <button onclick="updateCartQty(${item.cart_item_id}, ${item.quantity + 1})" class="px-2 py-0.5 text-xs text-ink-secondary hover:bg-paper-dark">+</button>
+            </div>
+            <div class="text-xs font-semibold text-ink-primary w-16 text-right">
+              ฿${Number(item.subtotal).toFixed(2)}
+            </div>
+            <button onclick="removeCartItem(${item.cart_item_id})" class="text-rose-400 hover:text-rose-600 text-xs p-1">
+              ลบ
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function updateCartQty(cartItemId, newQty) {
+      await fetch(`/api/cart/item/${cartItemId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ quantity: newQty })
+      });
+      loadCart();
+      updateCartBadge();
+    }
+
+    async function removeCartItem(cartItemId) {
+      await fetch(`/api/cart/item/${cartItemId}`, { method: 'DELETE' });
+      loadCart();
+      updateCartBadge();
+    }
+
+    function handleSlipFileSelect(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          const max_size = 900;
+
+          if (width > height && width > max_size) {
+            height = Math.round((height * max_size) / width);
+            width = max_size;
+          } else if (height > max_size) {
+            width = Math.round((width * max_size) / height);
+            height = max_size;
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+
+          const base64Data = canvas.toDataURL('image/jpeg', 0.85);
+          document.getElementById('checkout-slip-data').value = base64Data;
+          document.getElementById('checkout-slip-preview').src = base64Data;
+          document.getElementById('checkout-slip-preview-box').classList.remove('hidden');
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    async function handleCheckout() {
+      if (!currentUser) return;
+      const slipData = document.getElementById('checkout-slip-data').value;
+      if (!slipData) {
+        alert('กรุณาอัปโหลดรูปภาพสลิปการโอนเงินก่อนยืนยัน');
+        return;
+      }
+
+      const res = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-User-Id': currentUser.user_id },
+        body: JSON.stringify({ payment_method: 'PromptPay QR Transfer', proof_image: slipData })
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        showToast(`ส่งออเดอร์ ${data.order_code} สำเร็จ! รอแอดมินตรวจสลิป`);
+        updateCartBadge();
+        document.getElementById('checkout-slip-file').value = '';
+        document.getElementById('checkout-slip-data').value = '';
+        document.getElementById('checkout-slip-preview-box').classList.add('hidden');
+        switchTab('orders');
+      } else {
+        alert(data.error || 'เกิดข้อผิดพลาดในการสั่งซื้อ');
+      }
+    }
+
+    async function loadMyOrders() {
+      if (!currentUser) return;
+      const res = await fetch('/api/orders/my', { headers: { 'X-User-Id': currentUser.user_id } });
+      const data = await res.json();
+      const container = document.getElementById('orders-list-container');
+      const orders = data.orders || [];
+
+      if (orders.length === 0) {
+        container.innerHTML = `<div class="vintage-card p-10 rounded-2xl text-center text-ink-muted"><p>ยังไม่มีประวัติคำสั่งซื้อ</p></div>`;
+        return;
+      }
+
+      container.innerHTML = orders.map(ord => {
+        const isConfirmed = ord.status === 'confirmed';
+        let statusBadge = '';
+        if (ord.status === 'confirmed') {
+          statusBadge = '<span class="px-2.5 py-1 bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 text-[11px] font-semibold rounded-full flex items-center gap-1 shadow-sm"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> ยืนยันสิทธิ์แล้ว</span>';
+        } else if (ord.status === 'paid' || ord.status === 'pending') {
+          statusBadge = '<span class="px-2.5 py-1 bg-amber-500/15 text-amber-300 border border-amber-500/30 text-[11px] font-semibold rounded-full flex items-center gap-1 shadow-sm"><span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span> รอตรวจสอบสลิป</span>';
+        } else {
+          statusBadge = '<span class="px-2.5 py-1 bg-rose-500/15 text-rose-300 border border-rose-500/30 text-[11px] font-semibold rounded-full flex items-center gap-1 shadow-sm"><span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> ปฏิเสธ (สลิปไม่ผ่าน)</span>';
+        }
+
+        return `
+          <div class="vintage-card p-5 rounded-2xl border border-rose-500/20 bg-gradient-to-b from-[#141418] to-[#101014] space-y-4 shadow-lg hover:border-rose-500/40 transition-all duration-200">
+            <div class="flex flex-wrap items-center justify-between gap-3 border-b border-paper-border/80 pb-3">
+              <div class="flex items-center gap-3">
+                <span class="text-xs font-mono font-bold text-white tracking-wider px-2 py-0.5 rounded bg-zinc-800/80 border border-zinc-700/60">${ord.order_code}</span>
+                <span class="text-[11px] text-zinc-400">${ord.order_date}</span>
+              </div>
+              <div class="flex items-center gap-2">
+                ${statusBadge}
+                ${ord.proof_image ? `
+                  <button onclick="openSlipModal('${ord.proof_image}')" class="px-2.5 py-1 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 rounded-lg text-[11px] text-zinc-300 hover:text-white transition-all">
+                    ดูสลิป
+                  </button>
+                ` : ''}
+              </div>
+            </div>
+
+            <div class="space-y-2.5">
+              ${(ord.items || []).map(item => `
+                <div class="flex items-center justify-between p-2 rounded-xl bg-paper-main/60 border border-paper-border/60">
+                  <div class="flex items-center gap-3">
+                    <img 
+                      src="${item.cover_image_url || 'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?auto=format&fit=crop&w=100&q=80'}" 
+                      alt="${item.title}" 
+                      class="w-9 h-12 object-cover rounded-md border border-paper-border"
+                    />
+                    <div>
+                      <h4 class="text-xs font-semibold text-zinc-100">${item.title}</h4>
+                      <span class="text-[10px] text-zinc-400">จำนวน: ${item.quantity} เล่ม</span>
+                    </div>
+                  </div>
+                  <span class="text-xs font-bold text-zinc-200">฿${(item.unit_price * item.quantity).toFixed(2)}</span>
+                </div>
+              `).join('')}
+            </div>
+
+            <div class="pt-3 border-t border-paper-border/80 flex flex-wrap items-center justify-between gap-3">
+              <div class="flex items-baseline gap-2">
+                <span class="text-[11px] text-zinc-400">ยอดรวมทั้งสิ้น:</span>
+                <span class="text-base font-black text-transparent bg-clip-text bg-gradient-to-r from-rose-400 to-amber-300">฿${Number(ord.total_amount).toFixed(2)}</span>
+              </div>
+
+              <div>
+                ${isConfirmed ? `
+                  <div class="flex flex-wrap gap-2">
+                    ${(ord.downloads || []).map(dl => `
+                      <a 
+                        href="/api/download/${ord.order_id}/${dl.ebook_id}" 
+                        target="_blank"
+                        class="px-3.5 py-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-xl text-xs font-semibold transition-all shadow-md flex items-center gap-1.5 active:scale-95"
+                      >
+                        ดาวน์โหลด (${dl.file_size})
+                      </a>
+                    `).join('')}
+                  </div>
+                ` : `
+                  <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-zinc-900 border border-zinc-800 text-[11px] text-zinc-400">
+                    <span>${ord.status === 'cancelled' ? 'คำสั่งซื้อถูกปฏิเสธเนื่องจากสลิปไม่ตรง' : 'ระบบจะปลดล็อกไฟล์เมื่อแอดมินอนุมัติสลิป'}</span>
+                  </div>
+                `}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function switchAdminSubTab(subId) {
+      ['orders', 'books', 'cats', 'users'].forEach(s => {
+        document.getElementById(`admin-view-${s}`).classList.add('hidden');
+        document.getElementById(`admin-sub-${s}`).className = 'px-3 py-1.5 rounded-lg text-ink-muted hover:text-ink-primary';
+      });
+      document.getElementById(`admin-view-${subId}`).classList.remove('hidden');
+      document.getElementById(`admin-sub-${subId}`).className = 'px-3 py-1.5 rounded-lg bg-leather text-white font-medium shadow-sm';
+
+      if (subId === 'orders') loadAdminOrders();
+      if (subId === 'books') loadAdminBooks();
+      if (subId === 'cats') loadAdminCats();
+      if (subId === 'users') loadAdminUsers();
+    }
+
+    async function loadAdminOrders() {
+      if (!currentUser) return;
+      const res = await fetch('/api/orders/all', { headers: { 'X-User-Id': currentUser.user_id } });
+      const data = await res.json();
+      const tbody = document.getElementById('admin-orders-tbody');
+      tbody.innerHTML = (data.orders || []).map(ord => {
+        let badge = '';
+        if (ord.status === 'confirmed') badge = '<span class="px-2 py-0.5 bg-emerald-500/20 text-emerald-300 rounded-md font-medium text-[10px]">อนุมัติแล้ว</span>';
+        else if (ord.status === 'paid' || ord.status === 'pending') badge = '<span class="px-2 py-0.5 bg-blue-500/20 text-blue-300 rounded-md font-medium text-[10px]">รอตรวจสลิป</span>';
+        else badge = '<span class="px-2 py-0.5 bg-rose-500/20 text-rose-300 rounded-md font-medium text-[10px]">ปฏิเสธแล้ว</span>';
+
+        return `
+          <tr class="hover:bg-paper-main/40">
+            <td class="p-3 font-mono font-medium text-ink-primary">${ord.order_code}</td>
+            <td class="p-3">
+              <div class="font-medium">${ord.full_name}</div>
+              <div class="text-[10px] text-ink-muted">${ord.phone || ord.email}</div>
+            </td>
+            <td class="p-3 text-ink-muted">${ord.order_date}</td>
+            <td class="p-3 font-medium text-rose-400">฿${Number(ord.total_amount).toFixed(2)}</td>
+            <td class="p-3">
+              ${ord.proof_image ? `<button onclick="openSlipModal('${ord.proof_image}')" class="text-rose-400 hover:underline">ส่องสลิป</button>` : '-'}
+            </td>
+            <td class="p-3">${badge}</td>
+            <td class="p-3 text-right">
+              <div class="flex justify-end gap-1.5">
+                ${ord.status !== 'confirmed' ? `
+                  <button onclick="updateOrderStatus(${ord.order_id}, 'confirmed')" class="px-2 py-1 bg-tea text-white rounded-lg text-[11px] font-medium hover:bg-tea-hover shadow-sm">
+                    อนุมัติสลิป
+                  </button>
+                ` : ''}
+                ${ord.status !== 'cancelled' ? `
+                  <button onclick="updateOrderStatus(${ord.order_id}, 'cancelled')" class="px-2 py-1 bg-rose-600 text-white rounded-lg text-[11px] font-medium hover:bg-rose-700 shadow-sm">
+                    ปฏิเสธออเดอร์
+                  </button>
+                ` : ''}
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    async function updateOrderStatus(orderId, status) {
+      if (!currentUser) return;
+      const res = await fetch(`/api/orders/${orderId}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', 'X-User-Id': currentUser.user_id },
+        body: JSON.stringify({ status })
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast(data.message);
+        loadAdminOrders();
+      }
+    }
+
+    async function loadAdminBooks() {
+      const res = await fetch('/api/ebooks');
+      const data = await res.json();
+      const tbody = document.getElementById('admin-books-tbody');
+      tbody.innerHTML = (data.ebooks || []).map(b => `
+        <tr class="hover:bg-paper-main/40">
+          <td class="p-3 font-mono font-medium">#${b.ebook_id}</td>
+          <td class="p-3"><img src="${b.cover_image_url}" class="w-8 h-11 object-cover rounded-lg border border-paper-border"></td>
+          <td class="p-3"><div class="font-medium text-ink-primary">${b.title}</div><div class="text-[10px] text-ink-muted">${b.category_name}</div></td>
+          <td class="p-3 text-ink-muted">${b.author_name}</td>
+          <td class="p-3 font-medium text-rose-400">฿${Number(b.price).toFixed(2)}</td>
+          <td class="p-3"><span class="px-2 py-0.5 text-[10px] rounded-md font-medium ${b.is_active ? 'bg-emerald-500/20 text-emerald-300' : 'bg-rose-500/20 text-rose-300'}">${b.is_active ? 'พร้อมขาย' : 'ปิดการขาย'}</span></td>
+          <td class="p-3 text-right">
+            <div class="flex justify-end gap-1.5">
+              <button onclick="openEditBookModal(${b.ebook_id})" class="px-2 py-1 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-[11px] font-medium">แก้ไข</button>
+              <button onclick="toggleBookStatus(${b.ebook_id})" class="px-2 py-1 bg-paper-border hover:bg-zinc-700 rounded-lg text-[11px] font-medium">${b.is_active ? 'ปิดขาย' : 'เปิดขาย'}</button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+   async function toggleBookStatus(ebookId) {
+      if (!currentUser) return;
+      const res = await fetch(`/api/ebooks/${ebookId}/toggle`, { 
+        method: 'PATCH',
+        headers: { 'X-User-Id': currentUser.user_id }
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast(data.message);
+        loadAdminBooks();
+        loadEbooks();
+      } else {
+        alert(data.error || 'เกิดข้อผิดพลาด');
+      }
+    }
+
+    async function handleAdminAddBook() {
+      const title = document.getElementById('add-book-title').value.trim();
+      const price = parseFloat(document.getElementById('add-book-price').value);
+      const category_id = document.getElementById('add-book-cat').value;
+      const author_id = document.getElementById('add-book-author').value;
+      const cover_image_url = document.getElementById('add-book-img').value.trim();
+      const description = document.getElementById('add-book-desc').value.trim();
+
+      const res = await fetch('/api/ebooks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-User-Id': currentUser.user_id },
+        body: JSON.stringify({ title, price, category_id, author_id, cover_image_url, description })
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast('เพิ่มหนังสือใหม่สำเร็จ!');
+        loadAdminBooks();
+        loadEbooks();
+      }
+    }
+
+    async function loadAdminCats() {
+      const res = await fetch('/api/categories');
+      const data = await res.json();
+      const tbody = document.getElementById('admin-cats-tbody');
+      tbody.innerHTML = (data.categories || []).map(c => `
+        <tr class="hover:bg-paper-main/40">
+          <td class="p-3 font-mono font-medium">#${c.category_id}</td>
+          <td class="p-3 font-medium text-ink-primary">${c.category_name}</td>
+          <td class="p-3 text-right">
+            <button onclick="openEditCatModal(${c.category_id}, '${c.category_name}')" class="px-2 py-1 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-[11px] font-medium">
+              แก้ไขชื่อ
+            </button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function openEditCatModal(catId, catName) {
+      document.getElementById('edit-cat-id').value = catId;
+      document.getElementById('edit-cat-name').value = catName;
+      document.getElementById('edit-cat-modal').classList.remove('hidden');
+      document.getElementById('edit-cat-modal').classList.add('flex');
+    }
+
+    function closeEditCatModal() {
+      document.getElementById('edit-cat-modal').classList.add('hidden');
+      document.getElementById('edit-cat-modal').classList.remove('flex');
+    }
+
+    async function handleSaveEditCategory() {
+      const catId = document.getElementById('edit-cat-id').value;
+      const catName = document.getElementById('edit-cat-name').value.trim();
+      if (!catName) { alert('กรุณากรอกชื่อหมวดหมู่'); return; }
+
+      const res = await fetch(`/api/categories/${catId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'X-User-Id': currentUser.user_id },
+        body: JSON.stringify({ category_name: catName })
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast('แก้ไขหมวดหมู่สำเร็จ');
+        closeEditCatModal();
+        loadCategories();
+        loadAdminCats();
+      }
+    }
+
+    async function handleAdminAddCategory() {
+      const category_name = document.getElementById('add-cat-name').value.trim();
+      const res = await fetch('/api/categories', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-User-Id': currentUser.user_id },
+        body: JSON.stringify({ category_name })
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast('เพิ่มหมวดหมู่สำเร็จ');
+        document.getElementById('add-cat-name').value = '';
+        loadCategories();
+        loadAdminCats();
+      }
+    }
+
+    async function loadAdminUsers() {
+      if (!currentUser) return;
+      const res = await fetch('/api/users', { headers: { 'X-User-Id': currentUser.user_id } });
+      const data = await res.json();
+      const tbody = document.getElementById('admin-users-tbody');
+      tbody.innerHTML = (data.users || []).map(u => {
+        const hasWarning = (u.rejected_orders_count || 0) > 0;
+        return `
+          <tr class="hover:bg-paper-main/40 ${hasWarning ? 'bg-rose-950/20' : ''}">
+            <td class="p-3 font-mono font-medium">#${u.user_id}</td>
+            <td class="p-3 font-medium text-ink-primary flex items-center gap-1.5">
+              ${hasWarning ? '<span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>' : ''}
+              ${u.full_name}
+            </td>
+            <td class="p-3 text-ink-muted">${u.email}</td>
+            <td class="p-3 text-ink-muted">${u.phone || '-'}</td>
+            <td class="p-3"><span class="px-2 py-0.5 text-[10px] rounded-md font-medium ${u.pdpa_consent ? 'bg-emerald-500/20 text-emerald-300' : 'bg-rose-500/20 text-rose-300'}">${u.pdpa_consent ? 'ยินยอมแล้ว' : 'ไม่ยินยอม'}</span></td>
+            <td class="p-3"><span class="px-2 py-0.5 text-[10px] rounded-md font-medium ${u.role_id === 1 ? 'bg-rose-500/20 text-rose-300' : 'bg-tea/20 text-emerald-300'}">${u.role_name}</span></td>
+            <td class="p-3">
+              ${hasWarning 
+                ? `<span class="px-2 py-0.5 text-[10px] font-semibold bg-rose-500/30 text-rose-300 border border-rose-500/40 rounded-md">เคยถูกปฏิเสธ (${u.rejected_orders_count} ออเดอร์)</span>` 
+                : `<span class="text-[10px] text-emerald-400 font-medium">ปกติ</span>`
+              }
+            </td>
+            <td class="p-3 text-ink-muted">${u.total_orders} ออเดอร์</td>
+            <td class="p-3 text-right font-medium text-rose-400">฿${Number(u.total_spent).toFixed(2)}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    async function loadReport(reportId) {
+      currentReportId = reportId;
+      [1, 2, 3, 4].forEach(i => {
+        const btn = document.getElementById(`btn-rep-${i}`);
+        if (btn) {
+          btn.className = (i === reportId) 
+            ? 'p-3 text-left rounded-xl border border-paper-border bg-leather text-white font-medium shadow-sm transition-all'
+            : 'p-3 text-left rounded-xl border border-paper-border bg-paper-card text-ink-muted hover:text-ink-primary transition-all';
+        }
+      });
+
+      const res = await fetch(`/api/reports/${reportId}`);
+      const data = await res.json();
+      currentReportData = data;
+
+      document.getElementById('report-title').innerText = data.title;
+      document.getElementById('report-desc').innerText = data.description;
+
+      const thead = document.getElementById('report-table-head');
+      const tbody = document.getElementById('report-table-body');
+      const rows = data.data || [];
+
+      if (reportId === 1) {
+        thead.innerHTML = `
+          <tr>
+            <th class="p-3">ประจำเดือน</th>
+            <th class="p-3">จำนวนคำสั่งซื้อ</th>
+            <th class="p-3">ยอดขายรวม</th>
+            <th class="p-3 text-right">ยอดเฉลี่ยต่อออเดอร์</th>
+          </tr>
+        `;
+        tbody.innerHTML = rows.map(r => `
+          <tr class="hover:bg-paper-main/40">
+            <td class="p-3 font-mono font-medium">${r.month}</td>
+            <td class="p-3 text-ink-muted">${r.total_orders} รายการ</td>
+            <td class="p-3 font-medium text-rose-400">฿${Number(r.total_revenue).toFixed(2)}</td>
+            <td class="p-3 text-right text-ink-muted">฿${Number(r.avg_order_value).toFixed(2)}</td>
+          </tr>
+        `).join('');
+      } else if (reportId === 2) {
+        thead.innerHTML = `
+          <tr>
+            <th class="p-3">อันดับ</th>
+            <th class="p-3">ชื่อเรื่อง</th>
+            <th class="p-3">หมวดหมู่</th>
+            <th class="p-3">ผู้แต่ง</th>
+            <th class="p-3">ยอดขาย (เล่ม)</th>
+            <th class="p-3 text-right">ยอดขายรวม</th>
+          </tr>
+        `;
+        tbody.innerHTML = rows.map((r, idx) => `
+          <tr class="hover:bg-paper-main/40">
+            <td class="p-3 font-semibold text-rose-400">#${idx + 1}</td>
+            <td class="p-3 font-medium text-ink-primary">${r.title}</td>
+            <td class="p-3 text-ink-muted">${r.category_name}</td>
+            <td class="p-3 text-ink-muted">${r.author_name}</td>
+            <td class="p-3 font-medium">${r.total_units_sold} เล่ม</td>
+            <td class="p-3 text-right font-medium text-rose-400">฿${Number(r.total_revenue).toFixed(2)}</td>
+          </tr>
+        `).join('');
+      } else if (reportId === 3) {
+        thead.innerHTML = `
+          <tr>
+            <th class="p-3">รหัสหมวด</th>
+            <th class="p-3">ชื่อหมวดหมู่ & รายการมังงะในหมวด</th>
+            <th class="p-3">ออเดอร์สำเร็จ</th>
+            <th class="p-3">ยอดขายรวม (เล่ม)</th>
+            <th class="p-3">ถูกปฏิเสธสลิป</th>
+            <th class="p-3 text-right">รายได้รวมสุทธิ</th>
+          </tr>
+        `;
+        tbody.innerHTML = rows.map(r => `
+          <tr class="bg-paper-card/70 font-semibold border-t-2 border-paper-border">
+            <td class="p-3 font-mono text-rose-400">#${r.category_id}</td>
+            <td class="p-3 text-ink-primary text-xs">${r.category_name}</td>
+            <td class="p-3 text-emerald-400">${r.order_count} ออเดอร์</td>
+            <td class="p-3 text-ink-primary">${r.total_books_sold} เล่ม</td>
+            <td class="p-3 text-rose-400">${r.rejected_orders_count} ออเดอร์</td>
+            <td class="p-3 text-right font-medium text-rose-400">฿${Number(r.total_category_revenue).toFixed(2)}</td>
+          </tr>
+          ${(r.sub_books || []).map(b => `
+            <tr class="hover:bg-paper-main/30 text-[11px] bg-paper-main/10">
+              <td></td>
+              <td class="p-2 pl-8 text-ink-secondary">
+                ${b.title}
+              </td>
+              <td></td>
+              <td class="p-2 text-ink-muted">${b.units_sold} เล่ม</td>
+              <td></td>
+              <td class="p-2 text-right text-ink-muted">฿${Number(b.book_revenue).toFixed(2)}</td>
+            </tr>
+          `).join('')}
+        `).join('');
+      } else if (reportId === 4) {
+        thead.innerHTML = `
+          <tr>
+            <th class="p-3">ลูกค้า</th>
+            <th class="p-3">อีเมล</th>
+            <th class="p-3">ออเดอร์ทั้งหมด</th>
+            <th class="p-3">สำเร็จ</th>
+            <th class="p-3">ปฏิเสธสลิป</th>
+            <th class="p-3 text-right">ยอดซื้อสะสม</th>
+          </tr>
+        `;
+        tbody.innerHTML = rows.map(r => `
+          <tr class="hover:bg-paper-main/40">
+            <td class="p-3 font-medium text-ink-primary">${r.full_name}</td>
+            <td class="p-3 text-ink-muted">${r.email}</td>
+            <td class="p-3 text-ink-muted">${r.total_orders} รายการ</td>
+            <td class="p-3"><span class="px-2 py-0.5 bg-emerald-500/20 text-emerald-300 rounded font-medium">${r.confirmed_orders}</span></td>
+            <td class="p-3"><span class="px-2 py-0.5 bg-rose-500/20 text-rose-300 rounded font-medium">${r.cancelled_orders}</span></td>
+            <td class="p-3 text-right font-medium text-rose-400">฿${Number(r.confirmed_spending).toFixed(2)}</td>
+          </tr>
+        `).join('');
+      }
+    }
+
+    function exportCurrentReportToCSV() {
+      if (!currentReportData || !currentReportData.data) {
+        alert('ไม่มีข้อมูลสำหรับส่งออก');
+        return;
+      }
+
+      let csvContent = '\uFEFF';
+      const rows = currentReportData.data;
+
+      if (currentReportId === 1) {
+        csvContent += "ประจำเดือน,จำนวนคำสั่งซื้อ,ยอดขายรวม(บาท),ยอดเฉลี่ยต่อออเดอร์(บาท)\n";
+        rows.forEach(r => {
+          csvContent += `"${r.month}","${r.total_orders}","${r.total_revenue}","${r.avg_order_value}"\n`;
+        });
+      } else if (currentReportId === 2) {
+        csvContent += "อันดับ,ชื่อเรื่อง,หมวดหมู่,ผู้แต่ง,ยอดขาย(เล่ม),ยอดขายรวม(บาท)\n";
+        rows.forEach((r, idx) => {
+          csvContent += `"${idx + 1}","${r.title}","${r.category_name}","${r.author_name}","${r.total_units_sold}","${r.total_revenue}"\n`;
+        });
+      } else if (currentReportId === 3) {
+        csvContent += "รหัสหมวด,ชื่อหมวดหมู่,ชื่อหนังสือย่อย,ยอดขายหนังสือ(เล่ม),ยอดขายรวมหมวด(บาท),ออเดอร์ที่ถูกปฏิเสธ\n";
+        rows.forEach(r => {
+          (r.sub_books || []).forEach(b => {
+            csvContent += `"${r.category_id}","${r.category_name}","${b.title}","${b.units_sold}","${r.total_category_revenue}","${r.rejected_orders_count}"\n`;
+          });
+        });
+      } else if (currentReportId === 4) {
+        csvContent += "ชื่อลูกค้า,อีเมล,ออเดอร์ทั้งหมด,ออเดอร์สำเร็จ,ออเดอร์ปฏิเสธ,ยอดซื้อสะสม(บาท)\n";
+        rows.forEach(r => {
+          csvContent += `"${r.full_name}","${r.email}","${r.total_orders}","${r.confirmed_orders}","${r.cancelled_orders}","${r.confirmed_spending}"\n`;
+        });
+      }
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `hondana_report_${currentReportId}_${new Date().toISOString().slice(0,10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showToast('ดาวน์โหลดไฟล์ CSV เรียบร้อยแล้ว');
+    }
+
+    function openSlipModal(url) {
+      document.getElementById('slip-modal-img').src = url;
+      document.getElementById('slip-modal').classList.remove('hidden');
+      document.getElementById('slip-modal').classList.add('flex');
+    }
+
+    function closeSlipModal() {
+      document.getElementById('slip-modal').classList.add('hidden');
+      document.getElementById('slip-modal').classList.remove('flex');
+    }
+
+    let currentRotation = 0;
+    function handleFileSelect(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        currentRotation = 0;
+        const img = new Image();
+        img.onload = function() {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          const max_size = 800;
+
+          if (width > height && width > max_size) {
+            height = Math.round((height * max_size) / width);
+            width = max_size;
+          } else if (height > max_size) {
+            width = Math.round((width * max_size) / height);
+            height = max_size;
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+
+          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.85);
+          document.getElementById('edit-book-img').value = compressedBase64;
+          const preview = document.getElementById('edit-book-preview');
+          preview.src = compressedBase64;
+          preview.classList.remove('hidden');
+          document.getElementById('preview-text').classList.add('hidden');
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function rotateImage(degrees) {
+      const preview = document.getElementById('edit-book-preview');
+      if (!preview.src || preview.classList.contains('hidden')) {
+        alert('กรุณาเลือกรูปภาพก่อนหมุน');
+        return;
+      }
+
+      const img = new Image();
+      img.onload = function() {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = img.height;
+        canvas.height = img.width;
+        ctx.translate(canvas.width / 2, canvas.height / 2);
+        ctx.rotate((90 * Math.PI) / 180);
+        ctx.drawImage(img, -img.width / 2, -img.height / 2);
+        const rotatedBase64 = canvas.toDataURL('image/jpeg', 0.88);
+        preview.src = rotatedBase64;
+        document.getElementById('edit-book-img').value = rotatedBase64;
+      };
+      img.src = preview.src;
+    }
+
+    function openEditBookModal(ebookId) {
+      const book = allEbooks.find(b => b.ebook_id === ebookId);
+      if (!book) return;
+
+      document.getElementById('edit-book-id').value = book.ebook_id;
+      document.getElementById('edit-book-title').value = book.title;
+      document.getElementById('edit-book-price').value = book.price;
+      document.getElementById('edit-book-img').value = book.cover_image_url || '';
+      document.getElementById('edit-book-desc').value = book.description || '';
+      document.getElementById('edit-book-file').value = '';
+
+      const preview = document.getElementById('edit-book-preview');
+      const previewText = document.getElementById('preview-text');
+      if (book.cover_image_url) {
+        preview.src = book.cover_image_url;
+        preview.classList.remove('hidden');
+        previewText.classList.add('hidden');
+      } else {
+        preview.classList.add('hidden');
+        previewText.classList.remove('hidden');
+      }
+
+      document.getElementById('edit-book-modal').classList.remove('hidden');
+      document.getElementById('edit-book-modal').classList.add('flex');
+    }
+
+    function closeEditBookModal() {
+      document.getElementById('edit-book-modal').classList.add('hidden');
+      document.getElementById('edit-book-modal').classList.remove('flex');
+    }
+
+    async function handleSaveEditBook() {
+      const id = document.getElementById('edit-book-id').value;
+      const title = document.getElementById('edit-book-title').value.trim();
+      const price = parseFloat(document.getElementById('edit-book-price').value);
+      const cover_image_url = document.getElementById('edit-book-img').value.trim();
+      const description = document.getElementById('edit-book-desc').value.trim();
+
+      const res = await fetch(`/api/ebooks/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'X-User-Id': currentUser.user_id },
+        body: JSON.stringify({ title, price, cover_image_url, description })
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast('บันทึกข้อมูลสำเร็จ');
+        closeEditBookModal();
+        await loadEbooks();
+        loadAdminBooks();
+      }
+    }
+  </script>
+
+</body>
+</html>
