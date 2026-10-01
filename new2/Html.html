@@ -1317,49 +1317,82 @@ function updateUserUI() {
       reader.readAsDataURL(file);
     }
 
-    async function handleSaveProfile() {
-      const fullname = document.getElementById('prof-fullname').value.trim();
-      const phone = document.getElementById('prof-phone').value.trim();
-      const avatarData = document.getElementById('prof-avatar-data').value;
-      const currentPassword = document.getElementById('prof-current-password').value.trim();
-      const newPassword = document.getElementById('prof-new-password').value.trim();
+    // ฟังก์ชันบันทึกโปรไฟล์ผู้ใช้ + รูปโปรไฟล์ (แก้ไขการเก็บบันทึกลง localStorage ให้สมบูรณ์)
+async function handleSaveProfile() {
+  if (!currentUser) return;
 
-      if (!fullname) {
-        showToast('กรุณากรอกชื่อ-นามสกุล');
-        return;
-      }
+  const fullname = document.getElementById('prof-fullname').value.trim();
+  const phone = document.getElementById('prof-phone').value.trim();
+  const avatarData = document.getElementById('prof-avatar-data').value;
 
-      if (newPassword && !currentPassword) {
-        showToast('กรุณากรอกรหัสผ่านเดิมเพื่อยืนยันความปลอดภัย');
-        return;
-      }
+  if (!fullname) {
+    showToast('กรุณากรอกชื่อ-นามสกุล');
+    return;
+  }
 
-      const payload = { full_name: fullname, phone };
-      if (avatarData) payload.avatar_url = avatarData;
-      if (newPassword) {
-        payload.current_password = currentPassword;
-        payload.new_password = newPassword;
-      }
+  const payload = { full_name: fullname, phone };
+  if (avatarData) payload.avatar_url = avatarData;
 
-      const res = await fetch('/api/auth/profile', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', 'X-User-Id': currentUser.user_id },
-        body: JSON.stringify(payload)
-      });
-      const data = await res.json();
-      if (data.success) {
-        currentUser = data.user;
-        localStorage.setItem('ebook_vintage_user', JSON.stringify(currentUser));
-        document.getElementById('prof-current-password').value = '';
-        document.getElementById('prof-new-password').value = '';
-        document.getElementById('prof-avatar-data').value = '';
-        updateUserUI();
-        showToast('บันทึกข้อมูลและรหัสผ่านเรียบร้อย');
-      } else {
-        showToast(data.error || 'เกิดข้อผิดพลาดในการบันทึก');
-      }
+  try {
+    const res = await fetch('/api/auth/profile', {
+      method: 'PUT',
+      headers: { 
+        'Content-Type': 'application/json', 
+        'X-User-Id': currentUser.user_id 
+      },
+      body: JSON.stringify(payload)
+    });
+    
+    const data = await res.json();
+    if (data.success) {
+      currentUser = data.user;
+      localStorage.setItem('ebook_vintage_user', JSON.stringify(currentUser));
+      document.getElementById('prof-avatar-data').value = '';
+      updateUserUI();
+      showToast('บันทึกข้อมูลส่วนตัวเรียบร้อย');
+    } else {
+      showToast(data.error || 'เกิดข้อผิดพลาดในการบันทึก');
     }
+  } catch (e) {
+    showToast('เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์');
+  }
+}
 
+// ฟังก์ชันแก้ไขหนังสือและรูปปก (เซฟเรียลไทม์ และล็อคลำดับ)
+async function handleSaveEditBook() {
+  const id = document.getElementById('edit-book-id').value;
+  const title = document.getElementById('edit-book-title').value.trim();
+  const price = parseFloat(document.getElementById('edit-book-price').value);
+  const author_id = parseInt(document.getElementById('edit-book-author').value);
+  const category_id = parseInt(document.getElementById('add-book-cat') ? document.getElementById('add-book-cat').value : 1);
+  const cover_image_url = document.getElementById('edit-book-img').value.trim();
+  const description = document.getElementById('edit-book-desc').value.trim();
+
+  if (!title) {
+    showToast('กรุณากรอกชื่อเรื่องหนังสือ');
+    return;
+  }
+
+  const res = await fetch(`/api/ebooks/${id}`, {
+    method: 'PUT',
+    headers: { 
+      'Content-Type': 'application/json', 
+      'X-User-Id': currentUser.user_id 
+    },
+    body: JSON.stringify({ title, price, category_id, author_id, cover_image_url, description })
+  });
+
+  const data = await res.json();
+  if (data.success) {
+    showToast('บันทึกข้อมูลและรูปภาพสำเร็จแล้ว');
+    closeEditBookModal();
+    // โหลดตารางใหม่ทั้งหน้าร้านและหลังบ้าน ล็อคลำดับตรงกัน
+    await loadEbooks();
+    await loadAdminBooks();
+  } else {
+    alert(data.error || 'เกิดข้อผิดพลาดในการบันทึกข้อมูล');
+  }
+}
     function switchTab(tabId) {
       const adminOnlyTabs = ['admin', 'reports'];
       const loginRequiredTabs = ['cart', 'orders', 'profile', 'admin', 'reports'];
@@ -1971,29 +2004,35 @@ function handleAddBookFileSelect(event) {
     }
 
     async function loadAdminBooks() {
-      const res = await fetch('/api/ebooks');
-      const data = await res.json();
-      const tbody = document.getElementById('admin-books-tbody');
-      tbody.innerHTML = (data.ebooks || []).map(b => `
-        <tr class="hover:bg-paper-main/40">
-          <td class="p-3 font-mono font-medium">#${b.ebook_id}</td>
-          <td class="p-3"><img src="${b.cover_image_url}" class="w-8 h-11 object-cover rounded-lg border border-paper-border"></td>
-          <td class="p-3"><div class="font-medium text-ink-primary">${b.title}</div><div class="text-[10px] text-ink-muted">${b.category_name}</div></td>
-          <td class="p-3 text-ink-muted">${b.author_name}</td>
-          <td class="p-3 font-medium text-rose-400">฿${Number(b.price).toFixed(2)}</td>
-          <td class="p-3"><span class="px-2 py-0.5 text-[10px] rounded-md font-medium ${b.is_active ? 'bg-emerald-500/20 text-emerald-300' : 'bg-rose-500/20 text-rose-300'}">${b.is_active ? 'พร้อมขาย' : 'ปิดการขาย'}</span></td>
-          <td class="p-3 text-right">
-            <div class="flex justify-end gap-1.5">
-              <button onclick="openEditBookModal(${b.ebook_id})" class="px-2 py-1 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-[11px] font-medium">แก้ไข</button>
-              <button onclick="toggleBookStatus(${b.ebook_id})" class="px-2 py-1 bg-paper-border hover:bg-zinc-700 rounded-lg text-[11px] font-medium">${b.is_active ? 'ปิดขาย' : 'เปิดขาย'}</button>
-              
-              <!-- เพิ่มปุ่มลบตรงนี้ -->
-              <button onclick="handleDeleteBook(${b.ebook_id})" class="px-2 py-1 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-[11px] font-medium">ลบ</button>
-            </div>
-          </td>
-        </tr>
-      `).join('');
-    }
+  const res = await fetch('/api/ebooks');
+  const data = await res.json();
+  const tbody = document.getElementById('admin-books-tbody');
+  
+  // เรียงลำดับ ID จากน้อยไปมาก
+  const books = (data.ebooks || []).sort((a, b) => a.ebook_id - b.ebook_id);
+  
+  tbody.innerHTML = books.map((b, index) => `
+    <tr class="hover:bg-paper-main/40">
+      <!-- index + 1 จะแสดงเป็นลำดับที่ 1, 2, 3 เรียงกันเสมอ แม้ว่าจะมีการลบหนังสือออกไป -->
+      <td class="p-3 font-mono text-xs">
+        <span class="font-bold text-rose-400">#${index + 1}</span>
+        <span class="text-[10px] text-zinc-500 block">(ID: ${b.ebook_id})</span>
+      </td>
+      <td class="p-3"><img src="${b.cover_image_url}" class="w-8 h-11 object-cover rounded-lg border border-paper-border"></td>
+      <td class="p-3"><div class="font-medium text-ink-primary">${b.title}</div><div class="text-[10px] text-ink-muted">${b.category_name}</div></td>
+      <td class="p-3 text-ink-muted">${b.author_name}</td>
+      <td class="p-3 font-medium text-rose-400">฿${Number(b.price).toFixed(2)}</td>
+      <td class="p-3"><span class="px-2 py-0.5 text-[10px] rounded-md font-medium ${b.is_active ? 'bg-emerald-500/20 text-emerald-300' : 'bg-rose-500/20 text-rose-300'}">${b.is_active ? 'พร้อมขาย' : 'ปิดการขาย'}</span></td>
+      <td class="p-3 text-right">
+        <div class="flex justify-end gap-1.5">
+          <button onclick="openEditBookModal(${b.ebook_id})" class="px-2 py-1 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-[11px] font-medium">แก้ไข</button>
+          <button onclick="toggleBookStatus(${b.ebook_id})" class="px-2 py-1 bg-paper-border hover:bg-zinc-700 rounded-lg text-[11px] font-medium">${b.is_active ? 'ปิดขาย' : 'เปิดขาย'}</button>
+          <button onclick="handleDeleteBook(${b.ebook_id})" class="px-2 py-1 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-[11px] font-medium">ลบ</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
 
    async function toggleBookStatus(ebookId) {
       if (!currentUser) return;
@@ -2014,20 +2053,25 @@ function handleAddBookFileSelect(event) {
     // ฟังก์ชันลบหนังสือ
 // ฟังก์ชันลบหนังสือ
 async function handleDeleteBook(ebookId) {
-  if (!confirm('คุณแน่ใจหรือไม่ว่าต้องการลบหนังสือเล่มนี้ออกจากระบบ?')) return;
+  if (!confirm(`คุณแน่ใจหรือไม่ว่าต้องการลบหนังสือ ID #${ebookId} ออกจากระบบ?`)) return;
   
-  const res = await fetch(`/api/ebooks/${ebookId}`, {
-    method: 'DELETE',
-    headers: { 'X-User-Id': currentUser.user_id }
-  });
-  const data = await res.json();
-  
-  if (data.success) {
-    showToast('ลบหนังสือสำเร็จ');
-    loadAdminBooks();
-    loadEbooks();
-  } else {
-    alert(data.error || 'ไม่สามารถลบหนังสือได้');
+  try {
+    const res = await fetch(`/api/ebooks/${ebookId}`, {
+      method: 'DELETE',
+      headers: { 'X-User-Id': currentUser.user_id }
+    });
+    const data = await res.json();
+    
+    if (data.success) {
+      showToast('ลบหนังสือสำเร็จ');
+      // สั่งรีโหลดข้อมูลตารางใหม่ทันทีหลังกดลบ
+      await loadAdminBooks();
+      await loadEbooks();
+    } else {
+      alert(data.error || 'ไม่สามารถลบหนังสือได้');
+    }
+  } catch (e) {
+    alert('เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์');
   }
 }
 
@@ -2404,28 +2448,56 @@ async function handleDeleteBook(ebookId) {
     }
 
     async function handleSaveEditBook() {
-      const id = document.getElementById('edit-book-id').value;
-      const title = document.getElementById('edit-book-title').value.trim();
-      const price = parseFloat(document.getElementById('edit-book-price').value);
-      const author_id = parseInt(document.getElementById('edit-book-author').value); // ดึงค่าผู้แต่งที่เลือก
-      const cover_image_url = document.getElementById('edit-book-img').value.trim();
-      const description = document.getElementById('edit-book-desc').value.trim();
+  const id = document.getElementById('edit-book-id').value;
+  const title = document.getElementById('edit-book-title').value.trim();
+  const price = parseFloat(document.getElementById('edit-book-price').value);
+  const author_id = parseInt(document.getElementById('edit-book-author').value);
+  const category_id = parseInt(document.getElementById('add-book-cat') ? document.getElementById('add-book-cat').value : 1);
+  const cover_image_url = document.getElementById('edit-book-img').value.trim();
+  const description = document.getElementById('edit-book-desc').value.trim();
 
-      const res = await fetch(`/api/ebooks/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', 'X-User-Id': currentUser.user_id },
-        body: JSON.stringify({ title, price, author_id, cover_image_url, description })
-      });
-      const data = await res.json();
-      if (data.success) {
-        showToast('บันทึกข้อมูลสำเร็จ');
-        closeEditBookModal();
-        await loadEbooks();
-        loadAdminBooks();
-      } else {
-        alert(data.error || 'เกิดข้อผิดพลาดในการบันทึก');
-      }
-    }
+  if (!title) {
+    showToast('กรุณากรอกชื่อเรื่องหนังสือ');
+    return;
+  }
+
+  const res = await fetch(`/api/ebooks/${id}`, {
+    method: 'PUT',
+    headers: { 
+      'Content-Type': 'application/json', 
+      'X-User-Id': currentUser.user_id 
+    },
+    body: JSON.stringify({ title, price, category_id, author_id, cover_image_url, description })
+  });
+
+  const data = await res.json();
+  if (data.success) {
+    showToast('บันทึกข้อมูลและรูปภาพสำเร็จแล้ว');
+    closeEditBookModal();
+    // โหลดข้อมูลซ้ำทันทีเพื่อให้ UI หน้าแรกและหลังบ้านอัปเดตเรียลไทม์
+    await loadEbooks();
+    loadAdminBooks();
+  } else {
+    alert(data.error || 'เกิดข้อผิดพลาดในการบันทึกข้อมูล');
+  }
+}
+
+// ฟังก์ชันลบรายการออกจากตะกร้าแบบ Real-time Sync
+async function removeCartItem(cartItemId) {
+  if (!currentUser) return;
+  const res = await fetch(`/api/cart/item/${cartItemId}`, { 
+    method: 'DELETE',
+    headers: { 'X-User-Id': currentUser.user_id }
+  });
+  const data = await res.json();
+  if (data.success) {
+    showToast('ลบสินค้าออกจากตะกร้าแล้ว');
+    await loadCart();
+    await updateCartBadge();
+  } else {
+    showToast(data.error || 'ไม่สามารถลบสินค้าได้');
+  }
+}
   </script>
 
 </body>
