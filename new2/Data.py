@@ -897,12 +897,17 @@ class AppRequestHandler(http.server.SimpleHTTPRequestHandler):
                 if not self.is_current_user_admin(conn):
                     self.send_error_response("เฉพาะ Admin เท่านั้น", status=403)
                     return
+                
                 title = body.get('title', '').strip()
                 price = float(body.get('price', 0))
                 category_id = int(body.get('category_id', 1))
-                author_id = int(body.get('author_id', 1))
+                author_id = int(body.get('author_id', 1))  # <--- รับค่า author_id เพิ่มเติม
                 cover_image_url = body.get('cover_image_url', '').strip()
                 description = body.get('description', '').strip()
+
+                if not title:
+                    self.send_error_response("กรุณาระบุชื่อเรื่องหนังสือ", status=400)
+                    return
 
                 cur.execute("""
                 INSERT INTO ebooks (title, description, price, cover_image_url, is_active, category_id, author_id)
@@ -1025,12 +1030,14 @@ class AppRequestHandler(http.server.SimpleHTTPRequestHandler):
                 ebook_id = int(m_eb_update.group(1))
                 title = body.get('title', '').strip()
                 price = float(body.get('price', 0))
+                author_id = int(body.get('author_id', 1)) # รับค่าผู้แต่ง
                 cover_image_url = body.get('cover_image_url', '').strip()
                 description = body.get('description', '').strip()
+                
                 cur.execute("""
-                UPDATE ebooks SET title = ?, price = ?, cover_image_url = ?, description = ?
+                UPDATE ebooks SET title = ?, price = ?, author_id = ?, cover_image_url = ?, description = ?
                 WHERE ebook_id = ?
-                """, (title, price, cover_image_url, description, ebook_id))
+                """, (title, price, author_id, cover_image_url, description, ebook_id))
                 conn.commit()
                 self.send_json_response({"message": "บันทึกข้อมูลมังงะสำเร็จ", "success": True})
                 return
@@ -1123,6 +1130,18 @@ class AppRequestHandler(http.server.SimpleHTTPRequestHandler):
                 cur.execute("DELETE FROM cart_items WHERE cart_item_id = ?", (cart_item_id,))
                 conn.commit()
                 self.send_json_response({"message": "ลบสำเร็จ", "success": True})
+                return
+
+            # >>> นำโค้ดนี้มาวางเพิ่มตรงนี้ <<<
+            m_eb_delete = re.match(r'^/api/ebooks/(\d+)$', path)
+            if m_eb_delete:
+                if not self.is_current_user_admin(conn):
+                    self.send_error_response("เฉพาะ Admin เท่านั้น", status=403)
+                    return
+                ebook_id = int(m_eb_delete.group(1))
+                cur.execute("DELETE FROM ebooks WHERE ebook_id = ?", (ebook_id,))
+                conn.commit()
+                self.send_json_response({"message": "ลบหนังสือสำเร็จ", "success": True})
                 return
 
             self.send_error_response(f"Endpoint not found: {path}", status=404)
