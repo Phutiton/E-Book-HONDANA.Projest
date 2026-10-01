@@ -523,10 +523,34 @@
               <label class="block text-ink-muted mb-1">ผู้แต่ง:</label>
               <select id="add-book-author" class="w-full px-3 py-2 bg-paper-main border border-paper-border rounded-xl text-xs text-ink-primary"></select>
             </div>
-            <div class="md:col-span-2">
-              <label class="block text-ink-muted mb-1">URL รูปภาพปกเริ่มต้น:</label>
-              <input type="text" id="add-book-img" placeholder="https://..." class="w-full px-3 py-2 bg-paper-main border border-paper-border rounded-xl text-xs text-ink-primary">
-            </div>
+            <div class="md:col-span-2 bg-paper-main p-3 rounded-xl border border-paper-border space-y-2">
+  <label class="block text-ink-secondary font-medium">รูปภาพปกมังงะ (JPG, PNG, WebP):</label>
+  <input 
+    type="file" 
+    id="add-book-file" 
+    accept="image/*" 
+    onchange="handleAddBookFileSelect(event)"
+    class="w-full text-xs text-ink-muted file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-[11px] file:bg-leather file:text-white cursor-pointer"
+  >
+  <input type="hidden" id="add-book-img">
+
+  <div class="flex items-center gap-3 pt-1">
+    <div class="w-20 h-28 border border-paper-border rounded-lg overflow-hidden bg-paper-card flex items-center justify-center">
+      <img id="add-book-preview" src="" alt="Preview" class="w-full h-full object-cover hidden">
+      <span id="add-preview-text" class="text-[10px] text-ink-muted text-center px-1">ยังไม่ได้เลือกรูป</span>
+    </div>
+    <div class="space-y-1.5">
+      <div class="text-[11px] text-ink-muted">หากภาพกลับหัวหรือเอียง:</div>
+      <button 
+        type="button" 
+        onclick="rotateAddBookImage(90)" 
+        class="px-2.5 py-1 bg-paper-card hover:bg-paper-border border border-paper-border text-ink-primary rounded-lg text-xs flex items-center gap-1 transition-all"
+      >
+        หมุนขวา 90°
+      </button>
+    </div>
+  </div>
+</div>
             <div class="md:col-span-2">
               <label class="block text-ink-muted mb-1">คำอธิบายย่อ:</label>
               <textarea id="add-book-desc" rows="2" class="w-full px-3 py-2 bg-paper-main border border-paper-border rounded-xl text-xs text-ink-primary"></textarea>
@@ -652,59 +676,56 @@
         </div>
       </div>
     </section>
-<!-- ✅ โค้ดใหม่ ปรับขนาดกรอบนอก Modal และรูปภาพให้พอดีสวยงาม -->
-<div id="book-detail-modal" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md hidden items-center justify-center p-4 transition-all duration-300">
-  <div class="bg-gradient-to-br from-[#16161c] via-[#121216] to-[#1c1218] rounded-3xl border border-rose-500/40 w-full max-w-md p-5 sm:p-6 space-y-5 shadow-[0_0_50px_rgba(225,29,72,0.3)] relative overflow-hidden">
-    
-    <!-- แสงเรืองรองนีออนแต่งขอบ -->
-    <div class="absolute -top-24 -right-24 w-52 h-52 bg-rose-600/20 rounded-full blur-[60px] pointer-events-none"></div>
-    <div class="absolute -bottom-24 -left-24 w-52 h-52 bg-amber-500/15 rounded-full blur-[60px] pointer-events-none"></div>
+<div id="book-detail-modal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden items-center justify-center p-4 transition-all duration-300">
+  <div class="bg-gradient-to-br from-[#16161c] via-[#121216] to-[#1c1218] rounded-2xl border border-rose-500/40 w-full max-w-xl p-5 sm:p-6 space-y-4 shadow-[0_0_40px_rgba(225,29,72,0.3)] relative overflow-hidden">
     
     <!-- ปุ่มปิด -->
-    <button onclick="closeBookDetailModal()" class="absolute top-4 right-4 text-zinc-400 hover:text-white text-xs w-8 h-8 rounded-full bg-zinc-900/90 flex items-center justify-center border border-zinc-700/60 transition-all hover:bg-rose-600 hover:border-rose-500 shadow-md z-20">✕</button>
+    <button onclick="closeBookDetailModal()" class="absolute top-3.5 right-3.5 text-zinc-400 hover:text-white text-xs w-7 h-7 rounded-full bg-zinc-900/90 flex items-center justify-center border border-zinc-700/60 transition-all hover:bg-rose-600 hover:border-rose-500 shadow-md z-20">✕</button>
     
-    <div class="flex flex-col gap-4 relative z-10">
-      <!-- ✅ โค้ดใหม่ ขยายรูปให้เต็มกรอบพอดี -->
-<div class="space-y-2 w-full">
-  <div class="relative w-full bg-zinc-950 rounded-2xl overflow-hidden border border-rose-500/20 shadow-xl group" style="aspect-ratio: 16 / 9;">
-    <img id="detail-cover" src="" alt="" class="w-full h-full object-cover transition-all duration-300">
-    <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none"></div>
-  </div>
-  <!-- แถวรูปภาพตัวอย่างย่อย (Thumbnails) -->
-  <div id="detail-thumbnails" class="flex items-center justify-center gap-1.5 overflow-x-auto pb-1"></div>
-</div>
-
-      <!-- ข้อมูลรายละเอียดด้านล่าง -->
-      <div class="space-y-3 w-full">
-        <div>
-          <span id="detail-category" class="px-2.5 py-0.5 bg-rose-500/15 text-rose-300 text-[10px] font-semibold rounded-full border border-rose-500/30 shadow-inner"></span>
-          <h3 id="detail-title" class="text-base sm:text-lg font-bold text-white mt-2 leading-snug tracking-tight"></h3>
-          <p id="detail-author" class="text-[11px] text-zinc-400 mt-0.5"></p>
+    <!-- เลย์เอาต์แบบกระชับ 2 คอลัมน์ (ซ้ายรูปปก ขวาข้อมูล) -->
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-5 items-center relative z-10">
+      
+      <!-- ฝั่งซ้าย: ปกหนังสือ -->
+      <div class="md:col-span-5 flex flex-col items-center">
+        <div class="relative w-full rounded-xl overflow-hidden border border-rose-500/30 shadow-[0_8px_20px_rgba(0,0,0,0.6)] group" style="aspect-ratio: 3 / 4;">
+          <img id="detail-cover" src="" alt="" class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500">
         </div>
+      </div>
 
-        <div class="flex items-center gap-2 text-amber-400 text-xs font-medium">
-          <span id="detail-rating" class="bg-amber-500/10 px-2 py-0.5 rounded-md border border-amber-500/20 shadow-sm text-[11px]"></span>
-          <span class="text-zinc-400 text-[10px]">(ลิขสิทธิ์แท้และแปลไทย 100%)</span>
+      <!-- ฝั่งขวา: รายละเอียด -->
+      <div class="md:col-span-7 flex flex-col justify-between space-y-3">
+        <div class="space-y-1.5">
+          <div class="flex items-center gap-2">
+            <span id="detail-category" class="px-2.5 py-0.5 bg-rose-500/15 text-rose-300 text-[10px] font-bold rounded-full border border-rose-500/30"></span>
+            <span class="text-[9px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20 font-medium">✓ ลิขสิทธิ์แท้</span>
+          </div>
+          <h3 id="detail-title" class="text-base sm:text-lg font-bold text-white leading-snug tracking-tight"></h3>
+          <p id="detail-author" class="text-xs text-zinc-400"></p>
+          
+          <div class="flex items-center gap-2 text-amber-400 text-xs font-semibold pt-0.5">
+            <span id="detail-rating" class="bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20 text-[11px]"></span>
+          </div>
         </div>
 
         <div class="space-y-1">
-          <span class="text-[10px] text-zinc-400 uppercase tracking-wider font-semibold block">เรื่องย่อ / รายละเอียด</span>
-          <p id="detail-desc" class="text-[11px] text-zinc-300 leading-relaxed bg-[#0d0d0f]/90 p-3 rounded-xl border border-zinc-800/80 max-h-24 overflow-y-auto shadow-inner"></p>
+          <span class="text-[10px] text-zinc-400 uppercase tracking-wider font-bold block">เรื่องย่อ / รายละเอียด</span>
+          <p id="detail-desc" class="text-xs text-zinc-300 leading-relaxed bg-[#0d0d0f]/80 p-2.5 rounded-xl border border-zinc-800/80 max-h-24 overflow-y-auto"></p>
         </div>
 
-        <div class="pt-2.5 border-t border-zinc-800 flex items-center justify-between">
+        <div class="pt-3 border-t border-zinc-800/80 flex items-center justify-between gap-3">
           <div>
             <span class="text-[9px] text-zinc-400 uppercase tracking-wider block">ราคาจำหน่าย</span>
             <span id="detail-price" class="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-rose-400 via-pink-300 to-amber-300">฿0.00</span>
           </div>
           <button 
             id="detail-add-btn"
-            class="px-5 py-2.5 bg-gradient-to-r from-rose-600 via-rose-500 to-amber-500 hover:opacity-95 text-white rounded-xl text-xs font-bold shadow-[0_4px_16px_rgba(244,63,94,0.4)] transition-all active:scale-95 flex items-center gap-1.5"
+            class="px-5 py-2.5 bg-gradient-to-r from-rose-600 via-rose-500 to-amber-500 hover:opacity-95 text-white rounded-xl text-xs font-bold shadow-[0_4px_15px_rgba(244,63,94,0.35)] transition-all active:scale-95 flex items-center gap-1.5"
           >
-            ใส่ตะกร้าสินค้า
+            <span>🛒</span> ใส่ตะกร้าสินค้า
           </button>
         </div>
       </div>
+
     </div>
   </div>
 </div>
@@ -771,6 +792,13 @@
           <input type="number" step="0.01" min="0" id="edit-book-price" class="w-full px-3 py-2 bg-paper-main border border-paper-border rounded-xl text-xs text-ink-primary focus:outline-none focus:border-rose-500/60">
         </div>
         
+        <!-- ช่องเลือกผู้แต่ง -->
+        <div>
+          <label class="block text-ink-muted mb-1">ผู้แต่ง (Author):</label>
+          <select id="edit-book-author" class="w-full px-3 py-2 bg-paper-main border border-paper-border rounded-xl text-xs text-ink-primary focus:outline-none focus:border-rose-500/60"></select>
+        </div>
+
+        <!-- บล็อกอัปโหลดรูปภาพ (มีแค่ชุดเดียวถูกต้อง ไม่ซ้ำซ้อน) -->
         <div class="bg-paper-main p-3 rounded-xl border border-paper-border space-y-2">
           <label class="block text-ink-secondary font-medium">รูปภาพปกมังงะ (JPG, PNG, WebP):</label>
           <input 
@@ -806,14 +834,15 @@
         </div>
       </div>
 
-      <div class="flex gap-2 pt-2 border-t border-paper-border">
-        <button onclick="handleSaveEditBook()" class="flex-1 py-2 bg-leather hover:bg-leather-hover text-white rounded-xl text-xs font-medium transition-all">
+      <div class="flex items-center gap-2 pt-3 border-t border-paper-border relative z-20">
+        <button onclick="handleSaveEditBook()" class="flex-1 py-2.5 bg-leather hover:bg-leather-hover text-white rounded-xl text-xs font-medium transition-all shadow-md">
           บันทึกการแก้ไข
         </button>
-        <button onclick="closeEditBookModal()" class="px-4 py-2 bg-paper-border text-ink-muted rounded-xl text-xs font-medium">
+        <button type="button" onclick="closeEditBookModal()" class="px-5 py-2.5 bg-paper-border hover:bg-zinc-700 text-ink-primary rounded-xl text-xs font-medium transition-all">
           ยกเลิก
         </button>
       </div>
+
     </div>
   </div>
 
@@ -1445,29 +1474,31 @@ function updateUserUI() {
 
         return `
           <div onclick="openBookDetailModal(${book.ebook_id})" class="vintage-card rounded-2xl overflow-hidden flex flex-col justify-between group cursor-pointer transition-all duration-300 hover:border-rose-500/80 hover:-translate-y-1.5 hover:shadow-[0_0_22px_rgba(225,29,72,0.35)]">
-<!-- ✅ โค้ดใหม่ ปรับเป็นสี่เหลี่ยมผืนผ้าแนวนอน -->
-<div class="relative w-full bg-paper-main overflow-hidden border-b border-paper-border" style="aspect-ratio: 16 / 9;">
-  <img 
-    src="${book.cover_image_url || 'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?auto=format&fit=crop&w=600&q=80'}" 
-    alt="${book.title}" 
-    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
-  />
-  <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30 pointer-events-none"></div>
+            
+            <!-- ปรับรูปภาพเป็นแนวตั้งผืนผ้า (aspect-ratio: 3 / 4) และซ่อนเรื่องย่อหน้าแรก -->
+            <div class="relative w-full bg-paper-main overflow-hidden border-b border-paper-border" style="aspect-ratio: 3 / 4;">
+              <img 
+                src="${book.cover_image_url || 'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?auto=format&fit=crop&w=600&q=80'}" 
+                alt="${book.title}" 
+                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+              />
+              <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30 pointer-events-none"></div>
 
-  <div class="absolute bottom-2.5 left-2.5">
-    <span class="px-2 py-0.5 bg-black/60 backdrop-blur-md text-zinc-300 text-[10px] font-medium rounded-full border border-white/10 shadow-sm">
-      ${book.category_name.split('(')[0].trim()}
-    </span>
-  </div>
+              <div class="absolute bottom-2.5 left-2.5">
+                <span class="px-2 py-0.5 bg-black/60 backdrop-blur-md text-zinc-300 text-[10px] font-medium rounded-full border border-white/10 shadow-sm">
+                  ${book.category_name.split('(')[0].trim()}
+                </span>
+              </div>
 
-  ${!book.is_active ? `
-    <div class="absolute inset-0 bg-black/60 backdrop-blur-[2px] flex items-center justify-center">
-      <span class="px-2.5 py-1 bg-rose-600/90 text-white text-[11px] font-bold rounded-lg border border-rose-400 shadow-lg">
-        ปิดการขายชั่วคราว
-      </span>
-    </div>
-  ` : ''}
-</div>
+              ${!book.is_active ? `
+                <div class="absolute inset-0 bg-black/60 backdrop-blur-[2px] flex items-center justify-center">
+                  <span class="px-2.5 py-1 bg-rose-600/90 text-white text-[11px] font-bold rounded-lg border border-rose-400 shadow-lg">
+                    ปิดการขายชั่วคราว
+                  </span>
+                </div>
+              ` : ''}
+            </div>
+
             <div class="p-4 flex-1 flex flex-col justify-between space-y-3">
               <div>
                 <div class="flex items-center gap-1 text-[11px] text-amber-400 mb-1">
@@ -1480,9 +1511,7 @@ function updateUserUI() {
                 <p class="text-[11px] text-ink-muted mt-1 font-normal flex items-center gap-1.5">
                   <span class="truncate">${book.author_name}</span>
                 </p>
-                <p class="text-[11px] text-ink-secondary mt-1.5 line-clamp-2 leading-relaxed font-normal">
-                  ${book.description || 'ไม่มีคำอธิบาย'}
-                </p>
+                <!-- ตัดแท็กแสดงรายละเอียด/เรื่องย่อออกเรียบร้อย เพื่อให้หน้าแรกดูสะอาดตาและเน้นปกหนังสือแนวตั้ง -->
               </div>
 
               <div class="pt-3 border-t border-paper-border/80 flex items-center justify-between">
@@ -1503,25 +1532,130 @@ function updateUserUI() {
         `;
       }).join('');
     }
+    // ฟังก์ชันอ่านไฟล์รูปสำหรับฟอร์มเพิ่มหนังสือใหม่ (รองรับทุกนามสกุลและรูปเคลื่อนไหว)
+function handleAddBookFileSelect(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const base64Str = e.target.result;
+    
+    // บันทึกค่า Base64 ลงใน input hidden
+    document.getElementById('add-book-img').value = base64Str;
+    
+    // ดึง element สำหรับพรีวิวรูปภาพ
+    const preview = document.getElementById('add-book-preview');
+    const previewText = document.getElementById('add-preview-text');
+    
+    if (preview) {
+      preview.src = base64Str;
+      preview.classList.remove('hidden');
+    }
+    if (previewText) {
+      previewText.classList.add('hidden');
+    }
+  };
+  
+  reader.readAsDataURL(file);
+}
+// ฟังก์ชันสำหรับเพิ่มมังงะ/ไลท์โนเวล ลงในตะกร้าสินค้า
     async function handleAddToCart(ebookId) {
       if (!currentUser) {
         openLoginModal();
-        showToast('กรุณาเข้าสู่ระบบก่อนเพิ่มสินค้า');
+        showToast('กรุณาเข้าสู่ระบบก่อนเพิ่มสินค้าลงตะกร้า');
         return;
       }
-      const res = await fetch('/api/cart/add', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-User-Id': currentUser.user_id },
-        body: JSON.stringify({ ebook_id: ebookId })
-      });
-      const data = await res.json();
-      if (data.success) {
-        showToast(data.message);
-        updateCartBadge();
-      } else {
-        alert(data.error || 'ไม่สามารถเพิ่มลงตะกร้าได้');
+
+      try {
+        const res = await fetch('/api/cart/add', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-User-Id': currentUser.user_id // แนบ ID ผู้ใช้เพื่อยืนยันตัวตน
+          },
+          body: JSON.stringify({ ebook_id: ebookId })
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+          showToast(data.message || 'เพิ่มลงในตะกร้าเรียบร้อยแล้ว');
+          await updateCartBadge(); // อัปเดตตัวเลขจำนวนสินค้าบนไอคอนตะกร้า
+        } else {
+          showToast(data.error || 'ไม่สามารถเพิ่มสินค้าลงตะกร้าได้');
+        }
+      } catch (error) {
+        showToast('เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์');
       }
     }
+// ฟังก์ชันสำหรับส่งข้อมูลเพิ่มหนังสือใหม่ไปยัง Backend******เพิ่มใหม่ตอน 0.18 น
+    async function handleAdminAddBook() {
+      if (!currentUser || currentUser.role_id !== 1) {
+        showToast('เฉพาะผู้ดูแลระบบ (Admin) เท่านั้น');
+        return;
+      }
+
+      const title = document.getElementById('add-book-title').value.trim();
+      const price = parseFloat(document.getElementById('add-book-price').value);
+      const category_id = parseInt(document.getElementById('add-book-cat').value);
+      const author_id = parseInt(document.getElementById('add-book-author').value);
+      const cover_image_url = document.getElementById('add-book-img').value.trim();
+      const description = document.getElementById('add-book-desc').value.trim();
+
+      if (!title) {
+        alert('กรุณากรอกชื่อเรื่องหนังสือ');
+        return;
+      }
+      if (isNaN(price) || price < 0) {
+        alert('กรุณากรอกราคาให้ถูกต้อง');
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/ebooks', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-User-Id': currentUser.user_id
+          },
+          body: JSON.stringify({
+            title,
+            price,
+            category_id,
+            author_id,
+            cover_image_url,
+            description
+          })
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+          showToast('เพิ่มหนังสือใหม่สำเร็จ!');
+          
+          // ล้างข้อมูลในฟอร์ม
+          document.getElementById('add-book-title').value = '';
+          document.getElementById('add-book-price').value = '';
+          document.getElementById('add-book-desc').value = '';
+          document.getElementById('add-book-img').value = '';
+          document.getElementById('add-book-file').value = '';
+          
+          const preview = document.getElementById('add-book-preview');
+          const previewText = document.getElementById('add-preview-text');
+          if (preview) preview.classList.add('hidden');
+          if (previewText) previewText.classList.remove('hidden');
+
+          // รีโหลดตารางหนังสือ
+          loadAdminBooks();
+          loadEbooks();
+        } else {
+          alert(data.error || 'เกิดข้อผิดพลาดในการเพิ่มหนังสือ');
+        }
+      } catch (error) {
+        alert('ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้: ' + error.message);
+      }
+    }//เพิ่มโค้ตบันทึกหนังสือใหม่
 
     async function updateCartBadge() {
       if (!currentUser) return;
@@ -1852,6 +1986,9 @@ function updateUserUI() {
             <div class="flex justify-end gap-1.5">
               <button onclick="openEditBookModal(${b.ebook_id})" class="px-2 py-1 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-[11px] font-medium">แก้ไข</button>
               <button onclick="toggleBookStatus(${b.ebook_id})" class="px-2 py-1 bg-paper-border hover:bg-zinc-700 rounded-lg text-[11px] font-medium">${b.is_active ? 'ปิดขาย' : 'เปิดขาย'}</button>
+              
+              <!-- เพิ่มปุ่มลบตรงนี้ -->
+              <button onclick="handleDeleteBook(${b.ebook_id})" class="px-2 py-1 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-[11px] font-medium">ลบ</button>
             </div>
           </td>
         </tr>
@@ -1874,26 +2011,25 @@ function updateUserUI() {
       }
     }
 
-    async function handleAdminAddBook() {
-      const title = document.getElementById('add-book-title').value.trim();
-      const price = parseFloat(document.getElementById('add-book-price').value);
-      const category_id = document.getElementById('add-book-cat').value;
-      const author_id = document.getElementById('add-book-author').value;
-      const cover_image_url = document.getElementById('add-book-img').value.trim();
-      const description = document.getElementById('add-book-desc').value.trim();
-
-      const res = await fetch('/api/ebooks', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-User-Id': currentUser.user_id },
-        body: JSON.stringify({ title, price, category_id, author_id, cover_image_url, description })
-      });
-      const data = await res.json();
-      if (data.success) {
-        showToast('เพิ่มหนังสือใหม่สำเร็จ!');
-        loadAdminBooks();
-        loadEbooks();
-      }
-    }
+    // ฟังก์ชันลบหนังสือ
+// ฟังก์ชันลบหนังสือ
+async function handleDeleteBook(ebookId) {
+  if (!confirm('คุณแน่ใจหรือไม่ว่าต้องการลบหนังสือเล่มนี้ออกจากระบบ?')) return;
+  
+  const res = await fetch(`/api/ebooks/${ebookId}`, {
+    method: 'DELETE',
+    headers: { 'X-User-Id': currentUser.user_id }
+  });
+  const data = await res.json();
+  
+  if (data.success) {
+    showToast('ลบหนังสือสำเร็จ');
+    loadAdminBooks();
+    loadEbooks();
+  } else {
+    alert(data.error || 'ไม่สามารถลบหนังสือได้');
+  }
+}
 
     async function loadAdminCats() {
       const res = await fetch('/api/categories');
@@ -1919,9 +2055,12 @@ function updateUserUI() {
       document.getElementById('edit-cat-modal').classList.add('flex');
     }
 
-    function closeEditCatModal() {
-      document.getElementById('edit-cat-modal').classList.add('hidden');
-      document.getElementById('edit-cat-modal').classList.remove('flex');
+    function closeEditBookModal() {
+      const modal = document.getElementById('edit-book-modal');
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
     }
 
     async function handleSaveEditCategory() {
@@ -2202,10 +2341,10 @@ function updateUserUI() {
       reader.readAsDataURL(file);
     }
 
-    function rotateImage(degrees) {
+   function rotateImage(degrees) {
       const preview = document.getElementById('edit-book-preview');
       if (!preview.src || preview.classList.contains('hidden')) {
-        alert('กรุณาเลือกรูปภาพก่อนหมุน');
+        showToast('กรุณาเลือกรูปภาพก่อนหมุน');
         return;
       }
 
@@ -2213,12 +2352,15 @@ function updateUserUI() {
       img.onload = function() {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
+        
         canvas.width = img.height;
         canvas.height = img.width;
+        
         ctx.translate(canvas.width / 2, canvas.height / 2);
-        ctx.rotate((90 * Math.PI) / 180);
+        ctx.rotate((degrees * Math.PI) / 180);
         ctx.drawImage(img, -img.width / 2, -img.height / 2);
-        const rotatedBase64 = canvas.toDataURL('image/jpeg', 0.88);
+        
+        const rotatedBase64 = canvas.toDataURL('image/jpeg', 0.9);
         preview.src = rotatedBase64;
         document.getElementById('edit-book-img').value = rotatedBase64;
       };
@@ -2236,6 +2378,16 @@ function updateUserUI() {
       document.getElementById('edit-book-desc').value = book.description || '';
       document.getElementById('edit-book-file').value = '';
 
+      // โหลดรายชื่อผู้แต่งใส่ Dropdown และเลือกค่าปัจจุบันของหนังสือเล่มนี้
+      const editAuthorSelect = document.getElementById('edit-book-author');
+      if (editAuthorSelect) {
+        editAuthorSelect.innerHTML = '';
+        allAuthors.forEach(a => {
+          const selected = a.author_id === book.author_id ? 'selected' : '';
+          editAuthorSelect.innerHTML += `<option value="${a.author_id}" ${selected}>${a.author_name}</option>`;
+        });
+      }
+
       const preview = document.getElementById('edit-book-preview');
       const previewText = document.getElementById('preview-text');
       if (book.cover_image_url) {
@@ -2251,22 +2403,18 @@ function updateUserUI() {
       document.getElementById('edit-book-modal').classList.add('flex');
     }
 
-    function closeEditBookModal() {
-      document.getElementById('edit-book-modal').classList.add('hidden');
-      document.getElementById('edit-book-modal').classList.remove('flex');
-    }
-
     async function handleSaveEditBook() {
       const id = document.getElementById('edit-book-id').value;
       const title = document.getElementById('edit-book-title').value.trim();
       const price = parseFloat(document.getElementById('edit-book-price').value);
+      const author_id = parseInt(document.getElementById('edit-book-author').value); // ดึงค่าผู้แต่งที่เลือก
       const cover_image_url = document.getElementById('edit-book-img').value.trim();
       const description = document.getElementById('edit-book-desc').value.trim();
 
       const res = await fetch(`/api/ebooks/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', 'X-User-Id': currentUser.user_id },
-        body: JSON.stringify({ title, price, cover_image_url, description })
+        body: JSON.stringify({ title, price, author_id, cover_image_url, description })
       });
       const data = await res.json();
       if (data.success) {
@@ -2274,6 +2422,8 @@ function updateUserUI() {
         closeEditBookModal();
         await loadEbooks();
         loadAdminBooks();
+      } else {
+        alert(data.error || 'เกิดข้อผิดพลาดในการบันทึก');
       }
     }
   </script>
