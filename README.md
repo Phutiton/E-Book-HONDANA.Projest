@@ -1,14 +1,14 @@
 # 📖 E-Book Store Mini Project Database (Classic Vintage Paper Edition)
 
-เว็บแอปพลิเคชันระบบร้านขาย E-Book และระบบบริหารจัดการฐานข้อมูลเชิงสัมพันธ์แบบ **3NF (Third Normal Form)** ด้วย **Python (Native HTTP Server + SQLite3)** และหน้าบ้านแบบ **Single File (HTML5 + Tailwind CSS + Vanilla JS)** ตามข้อกำหนดใน [e_book_store_technical_specification.md](file:///d:/E-Book%20%28Mini%20Project%20Database%29/e_book_store_technical_specification.md)
+เว็บแอปพลิเคชันระบบร้านขายมังงะ E-Book และระบบบริหารจัดการฐานข้อมูลเชิงสัมพันธ์แบบ **3NF (Third Normal Form)** ด้วย **Python (Native HTTP Server + SQLite3)** และหน้าบ้านแบบ **Single File (HTML5 + Tailwind CSS + Vanilla JS)** ตามข้อกำหนดใน [e_book_store_technical_specification.md](file:///d:/E-Book%20%28Mini%20Project%20Database%29/e_book_store_technical_specification.md)
 
 ---
 
 ## 🎨 ธีมและสไตล์การออกแบบ (UX/UI Design Concept)
-- **ธีม Classic Vintage Paper:** สไตล์ร้านหนังสือคลาสสิก อารมณ์ห้องสมุดยุโรปโบราณ ผสมผสานความ Clean & Responsive ใช้งานง่าย
+- **ธีม Classic Vintage Paper:** สไตล์ร้านหนังสือออกแนววัยรุ่น อารมณ์ความเป็ฯแอปญีปุ่น 
 - **โทนสี (Color Palette):**
   - Background หลัก: สีกระดาษถนอมสายตา/กระดาษสาโบราณ (`#F4EFEA`)
-  - Container / Card: สีกระดาษขาวนวลธรรมชาติ (`#FDFBF7`) ตัดขอบสีน้ำตาลสันหนังสือ (`#E3DCD3`)
+  - Container / Card: สีกระดาษดำเข็ม,แดง ตัดกับสีขาวของตัวหนังสือหนังสือ (`#E3DCD3`)
   - Typography: ตัวอักษรสีหมึกพิมพ์ดำอมน้ำตาล (`#2C2523`) ฟอนต์ Google Fonts: `'Playfair Display'` (หัวข้อ Serif คลาสสิก) และ `'Sarabun'` (ภาษาไทย)
   - Accent หนังโบราณ: `#8C5336` (hover: `#72422A`)
   - ปุ่มอนุมัติ/ดาวน์โหลด: สีเขียวใบชาแห้ง (`#2D4739` hover: `#203328`)
